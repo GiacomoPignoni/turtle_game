@@ -1,60 +1,20 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class TurtleCanvas extends StatefulWidget {
-  const TurtleCanvas({Key? key}) : super(key: key);
-
-  @override
-  State<TurtleCanvas> createState() => TurtleCanvasState();
-}
-
-class TurtleCanvasState extends State<TurtleCanvas> with TickerProviderStateMixin {
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 500),
-  );
-
-  late final _painterAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 300,
-      color: Colors.yellow[50],
-      child: AnimatedBuilder(
-        animation: _painterAnimation,
-        builder: (context, snapshot) {
-          return CustomPaint(
-            painter: TurtleCanvasPainter(
-              staticPath: Path()..moveTo(150, 150)..lineTo(50, 50), 
-              animatedPath: Path()..moveTo(50, 50)..lineTo(100, 0), 
-              animationProgress: _painterAnimation.value
-            )
-          );
-        }
-      ),
-    );
-  }
-
-  toggle() {
-    if(_controller.isCompleted) {
-      _controller.reverse();
-    } else {
-      _controller.forward();
-    }
-  }
-}
-
 class TurtleCanvasPainter extends CustomPainter {
-  final Path staticPath;
-  final Path animatedPath;
   final double animationProgress;
+  final Path staticPath;
+  final Path? animatedPath;
+  final double turtleAngle;
+  final double toTurtleAngle;
 
   TurtleCanvasPainter({
+    required this.animationProgress,
     required this.staticPath,
     required this.animatedPath,
-    required this.animationProgress
+    required this.turtleAngle,
+    required this.toTurtleAngle
   });
 
   @override
@@ -65,18 +25,30 @@ class TurtleCanvasPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    final partialAnimatedPath = _createAnimatedPath(animatedPath, animationProgress);
-    canvas.drawPath(staticPath, pathPaint);
-    canvas.drawPath(partialAnimatedPath, pathPaint);
+    canvas.drawPath(staticPath.shift(Offset(size.width / 2, size.height / 2)), pathPaint);
 
-    _drawTurtle(canvas, Offset(size.width/2, size.height/2), 45);
+    if(animatedPath != null) {
+      final partialAnimatedPath = _createAnimatedPath(animatedPath!.shift(Offset(size.width / 2, size.height / 2)), animationProgress);
+      canvas.drawPath(partialAnimatedPath, pathPaint);
+    }
+
+    double calculatedTurtleAngle = turtleAngle;
+    // If turtleAngle is differnt from toTurtleAngle I have to animate the rotation 
+    if(turtleAngle != toTurtleAngle) {
+      calculatedTurtleAngle = turtleAngle + ((toTurtleAngle - turtleAngle) * animationProgress);
+    }
+    _drawTurtle(canvas, Offset(size.width/2, size.height/2), calculatedTurtleAngle * (pi / 180));
   }
 
-  _drawTurtle(Canvas canvas, Offset position, double angle) {
+  _drawTurtle(Canvas canvas, Offset position, double radianAngle) {
+    const turtleDimension = 15;
+    final radius = turtleDimension / sqrt(3);
+
+    final fronPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
     final path = Path()
-      ..moveTo(position.dx - 10, position.dy + 6)
-      ..lineTo(position.dx + 10, position.dy + 6)
-      ..lineTo(position.dx, position.dy - 10)
+      ..moveTo(fronPoint.dx, fronPoint.dy)
+      ..lineTo(radius * cos(radianAngle + (4 * pi / 3)) + position.dx, radius * sin(radianAngle + (4 * pi / 3)) + position.dy)
+      ..lineTo(radius * cos(radianAngle + (2 * pi / 3)) + position.dx, radius * sin(radianAngle + (2 * pi / 3)) + position.dy)
       ..close();
     
     final turtlePaint = Paint()
@@ -84,9 +56,13 @@ class TurtleCanvasPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.fill;
+
+    final frontPointPaint = Paint()
+      ..color = Colors.blue;
 
     canvas.drawPath(path, turtlePaint);
+    canvas.drawCircle(fronPoint, 2, frontPointPaint);
   }
 
   Path _createAnimatedPath(Path originalPath, double animationPercent) {

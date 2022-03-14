@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:turtle_game/turtle_canvas.dart';
+import 'package:provider/provider.dart';
+import 'package:turtle_game/turtle_canvas/turtle_canvas.dart';
+import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
+import 'package:turtle_game/turtle_commands.dart';
+import 'package:turtle_game/turtle_orientation.dart';
+import 'package:turtle_game/turtle_path.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,30 +32,46 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final turtleCanvasKey = GlobalKey<TurtleCanvasState>();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TurtleCanvas(
-              key: turtleCanvasKey,
+    return MultiProvider(
+      providers: [
+        Provider(create: (_) => TurtleCanvasController())
+      ],
+      builder: (context, child) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TurtleCanvas(
+                  controller: Provider.of<TurtleCanvasController>(context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Provider.of<TurtleCommands>(context, listen: false).play();
+                        }, 
+                        child: const Text("Play")
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Provider.of<TurtleOrientation>(context, listen: false).rotate(90);
+                        }, 
+                        child: const Text("Rotate")
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: ElevatedButton(
-                onPressed: () {
-                  turtleCanvasKey.currentState?.toggle();
-                }, 
-                child: const Text("Toggle")
-              ),
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 }
