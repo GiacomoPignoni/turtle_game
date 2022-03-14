@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_painter.dart';
+import 'package:turtle_game/turtle_canvas/turtle_cavans_state_model.dart';
 
 class TurtleCanvas extends StatefulWidget {
   final TurtleCanvasController controller;
@@ -27,17 +28,22 @@ class TurtleCanvasState extends State<TurtleCanvas> with TickerProviderStateMixi
       width: 300,
       height: 300,
       color: Colors.yellow[50],
-      child: AnimatedBuilder(
-        animation: widget.controller.painterAnimation,
-        builder: (context, snapshot) {
-          return CustomPaint(
-            painter: TurtleCanvasPainter(
-              animationProgress: widget.controller.painterAnimation.value,
-              staticPath: Path(),
-              animatedPath: Path(), 
-              turtleAngle: 0,
-              toTurtleAngle: 0
-            )
+      child: ValueListenableBuilder<TurtleCavnasStateModel>(
+        valueListenable: widget.controller.canvasState,
+        builder: (context, canvasState, child) {
+          return AnimatedBuilder(
+            animation: widget.controller.painterAnimation,
+            builder: (context, snapshot) {
+              return CustomPaint(
+                painter: TurtleCanvasPainter(
+                  animationProgress: widget.controller.painterAnimation.value,
+                  staticPath: canvasState.staticPath,
+                  animatedPath: canvasState.toDrawPath, 
+                  turtleAngle: canvasState.turtleOrientation,
+                  toTurtleAngle: canvasState.toTurtleOrientation
+                )
+              );
+            }
           );
         }
       ),

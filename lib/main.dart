@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:turtle_game/models/commands.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
 import 'package:turtle_game/turtle_commands.dart';
-import 'package:turtle_game/turtle_orientation.dart';
-import 'package:turtle_game/turtle_path.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,15 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Provider.of<TurtleCommands>(context, listen: false).play();
+                          Provider.of<TurtleCanvasController>(context, listen: false).execCommand(Forward(100));
                         }, 
                         child: const Text("Play")
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Provider.of<TurtleOrientation>(context, listen: false).rotate(90);
-                        }, 
-                        child: const Text("Rotate")
                       ),
                     ],
                   ),

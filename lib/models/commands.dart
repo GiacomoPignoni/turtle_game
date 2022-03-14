@@ -3,9 +3,9 @@ class Command {
 }
 
 class Forward extends Command {
-  int value;
+  int distance;
 
-  Forward(this.value);
+  Forward(this.distance);
 }
 
 class Rotate extends Command {

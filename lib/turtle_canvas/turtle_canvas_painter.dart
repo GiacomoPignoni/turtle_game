@@ -25,11 +25,19 @@ class TurtleCanvasPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    canvas.drawPath(staticPath.shift(Offset(size.width / 2, size.height / 2)), pathPaint);
+    final shiftedStaticPath =  staticPath.shift(Offset(size.width / 2, size.height / 2));
+    canvas.drawPath(shiftedStaticPath, pathPaint);
+
+    final shiftedStaticPathRect = shiftedStaticPath.getBounds();
+    Offset turtlePosition = Offset(shiftedStaticPathRect.right, shiftedStaticPathRect.left);
 
     if(animatedPath != null) {
-      final partialAnimatedPath = _createAnimatedPath(animatedPath!.shift(Offset(size.width / 2, size.height / 2)), animationProgress);
+      final shiftedAnimatedPath = animatedPath!.shift(Offset(size.width / 2, size.height / 2));
+      final partialAnimatedPath = _createAnimatedPath(shiftedAnimatedPath, animationProgress);
       canvas.drawPath(partialAnimatedPath, pathPaint);
+
+      final partialAnimatedPathRect = partialAnimatedPath.getBounds();
+      turtlePosition = Offset(partialAnimatedPathRect.right, partialAnimatedPathRect.left);
     }
 
     double calculatedTurtleAngle = turtleAngle;
@@ -37,7 +45,7 @@ class TurtleCanvasPainter extends CustomPainter {
     if(turtleAngle != toTurtleAngle) {
       calculatedTurtleAngle = turtleAngle + ((toTurtleAngle - turtleAngle) * animationProgress);
     }
-    _drawTurtle(canvas, Offset(size.width/2, size.height/2), calculatedTurtleAngle * (pi / 180));
+    _drawTurtle(canvas, turtlePosition, calculatedTurtleAngle * (pi / 180));
   }
 
   _drawTurtle(Canvas canvas, Offset position, double radianAngle) {
