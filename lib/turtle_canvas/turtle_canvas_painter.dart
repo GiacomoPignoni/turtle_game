@@ -21,11 +21,12 @@ class TurtleCanvasPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {  
     final pathPaint = Paint()
       ..color = Colors.blueGrey[900]!
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = StrokeCap.square
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
     final shiftedStaticPath =  staticPath.shift(Offset(size.width / 2, size.height / 2));
+    shiftedStaticPath.close();
     canvas.drawPath(shiftedStaticPath, pathPaint);
 
     final shiftedStaticPathRect = shiftedStaticPath.getBounds();
@@ -52,9 +53,9 @@ class TurtleCanvasPainter extends CustomPainter {
     const turtleDimension = 15;
     final radius = turtleDimension / sqrt(3);
 
-    final fronPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
+    final frontPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
     final path = Path()
-      ..moveTo(fronPoint.dx, fronPoint.dy)
+      ..moveTo(frontPoint.dx, frontPoint.dy)
       ..lineTo(radius * cos(radianAngle + (4 * pi / 3)) + position.dx, radius * sin(radianAngle + (4 * pi / 3)) + position.dy)
       ..lineTo(radius * cos(radianAngle + (2 * pi / 3)) + position.dx, radius * sin(radianAngle + (2 * pi / 3)) + position.dy)
       ..close();
@@ -70,7 +71,7 @@ class TurtleCanvasPainter extends CustomPainter {
       ..color = Colors.blue;
 
     canvas.drawPath(path, turtlePaint);
-    canvas.drawCircle(fronPoint, 2, frontPointPaint);
+    canvas.drawCircle(frontPoint, 2, frontPointPaint);
   }
 
   Path _createAnimatedPath(Path originalPath, double animationPercent) {

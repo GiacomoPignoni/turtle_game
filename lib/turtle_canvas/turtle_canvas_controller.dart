@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:turtle_game/models/commands.dart';
 import 'package:turtle_game/turtle_canvas/turtle_cavans_state_model.dart';
@@ -12,13 +11,13 @@ class TurtleCanvasController {
 
   final StreamController<bool> _animationCompleted = StreamController.broadcast();
   late final ValueNotifier<TurtleCavnasStateModel> canvasState = ValueNotifier(TurtleCavnasStateModel(
-    staticPath: Path()..moveTo(0, 0)..lineTo(50, 50),
+    staticPath: Path()..moveTo(0, 0),
     toDrawPath: null,
     turtleOrientation: 0,
     toTurtleOrientation: 0
   ));
 
-  Offset _currentPosition = const Offset(50, 50);
+  Offset _currentPosition = const Offset(0, 0);
 
   bool _running = false;
 
@@ -45,11 +44,17 @@ class TurtleCanvasController {
     if(_running == false) {
       _running = true;
 
+      if(canvasState.value.toDrawPath != null) {
+        canvasState.value.staticPath.addPath(canvasState.value.toDrawPath!, const Offset(0, 0)); 
+      }
+      canvasState.value.turtleOrientation = canvasState.value.toTurtleOrientation;
+
       switch(command.runtimeType) {
         case Forward:
-        _forward((command as Forward).distance);
+          _forward((command as Forward).distance);
           break;
         case Rotate:
+          _rotate((command as Rotate).rotation);
           break;
       }
 
@@ -61,19 +66,30 @@ class TurtleCanvasController {
     }
   }
 
+  reset() {
+    canvasState.value = TurtleCavnasStateModel(
+      staticPath: Path()..moveTo(0, 0),
+      toDrawPath: null,
+      turtleOrientation: 0,
+      toTurtleOrientation: 0
+    );
+    _currentPosition = const Offset(0, 0);
+  }
+
   _forward(int distance) {
     final newX = _currentPosition.dx + (distance * cos(canvasState.value.toTurtleOrientation * pi/180));
     final newY = _currentPosition.dy + (distance * sin(canvasState.value.toTurtleOrientation * pi/180));
 
-    Path newStaticPath = canvasState.value.staticPath;
-    if(canvasState.value.toDrawPath != null) {
-      newStaticPath = Path.combine(PathOperation.union, newStaticPath, canvasState.value.toDrawPath!);
-    }
-
     canvasState.value = canvasState.value.copyWith(
-      staticPath: newStaticPath, 
       toDrawPath: Path()..moveTo(_currentPosition.dx, _currentPosition.dy)..lineTo(newX, newY)
     );
     _currentPosition = Offset(newX, newY);
+  }
+
+  _rotate(double rotation) {
+    canvasState.value = canvasState.value.copyWith(
+      toTurtleOrientation: canvasState.value.turtleOrientation + rotation,
+      toDrawPath: null
+    );
   }
 }

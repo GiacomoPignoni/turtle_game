@@ -31,8 +31,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  final commands = [
+    Forward(20),
+    Rotate(90),
+    Forward(20),
+    Rotate(90),
+    Forward(20),
+    Rotate(90),
+    Forward(20)
+  ];
+
   @override
   Widget build(BuildContext context) {
+    int i = 0;
+
     return MultiProvider(
       providers: [
         Provider(create: (_) => TurtleCanvasController())
@@ -53,9 +66,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Provider.of<TurtleCanvasController>(context, listen: false).execCommand(Forward(100));
+                          Provider.of<TurtleCanvasController>(context, listen: false).execCommand(commands[i]);
+                          i++;
+                        }, 
+                        child: const Text("Step")
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          for(final command in commands) {
+                            await Provider.of<TurtleCanvasController>(context, listen: false).execCommand(command);
+                          }
                         }, 
                         child: const Text("Play")
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Provider.of<TurtleCanvasController>(context, listen: false).reset();
+                          i = 0;
+                        }, 
+                        child: const Text("Reset")
                       ),
                     ],
                   ),

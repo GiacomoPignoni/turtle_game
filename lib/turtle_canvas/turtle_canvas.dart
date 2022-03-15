@@ -18,7 +18,7 @@ class TurtleCanvas extends StatefulWidget {
 class TurtleCanvasState extends State<TurtleCanvas> with TickerProviderStateMixin {
   @override
   void initState() {
-    widget.controller.inizializeAnimation(this, const Duration(milliseconds: 1000));
+    widget.controller.inizializeAnimation(this, const Duration(milliseconds: 500));
     super.initState();
   }
 

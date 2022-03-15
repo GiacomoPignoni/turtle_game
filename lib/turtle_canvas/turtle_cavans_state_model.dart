@@ -3,7 +3,7 @@ import 'dart:ui';
 class TurtleCavnasStateModel {
   final Path staticPath;
   final Path? toDrawPath;
-  final double turtleOrientation;
+  double turtleOrientation;
   final double toTurtleOrientation;
 
   TurtleCavnasStateModel({

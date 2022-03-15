@@ -9,7 +9,7 @@ class Forward extends Command {
 }
 
 class Rotate extends Command {
-  double rotationValue;
+  double rotation;
 
-  Rotate(this.rotationValue);
+  Rotate(this.rotation);
 }
