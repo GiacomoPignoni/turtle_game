@@ -48,7 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return MultiProvider(
       providers: [
-        Provider(create: (_) => TurtleCanvasController())
+        Provider(create: (_) => TurtleCanvasController()),
+        Provider(create: (context) => TurtleCommands(Provider.of<TurtleCanvasController>(context)))
       ],
       builder: (context, child) {
         return Scaffold(

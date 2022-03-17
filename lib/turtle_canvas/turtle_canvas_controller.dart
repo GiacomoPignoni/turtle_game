@@ -92,4 +92,12 @@ class TurtleCanvasController {
       toDrawPath: null
     );
   }
+  
+  draw() {
+
+  }
+
+  clear() {
+    
+  }
 }
