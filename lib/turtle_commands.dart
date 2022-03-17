@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:turtle_game/models/commands.dart';
+import 'package:turtle_game/models/pair.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
 
 class TurtleCommands extends ChangeNotifier {
@@ -12,6 +15,10 @@ class TurtleCommands extends ChangeNotifier {
   ];
 
   bool _running = false;
+  final List<Pair<Offset, Offset>> _drawedLines = [];
+  Offset _currentPosition = const Offset(0, 0);
+  double _currentTurtleAngle = 0;
+  Pair? _animatingPair;
 
   TurtleCommands(this._turtleCanvasController);
 
@@ -35,11 +42,27 @@ class TurtleCommands extends ChangeNotifier {
     }
   }
 
-  _forward(int distance) {
-    
+  reset() {
+    _turtleCanvasController.clear();
   }
 
-  _rotate(double rotation) {
-    
+  Future<void> _forward(int distance) async {
+    final newX = _currentPosition.dx + (distance * cos(_currentTurtleAngle * pi/180));
+    final newY = _currentPosition.dy + (distance * sin(_currentTurtleAngle * pi/180));
+
+    _turtleCanvasController.draw(
+      linesToDraw: _drawedLines, 
+      turtleAngle: _currentTurtleAngle
+    );
+
+    _currentPosition = Offset(newX, newY);
+  }
+
+  Future<void> _rotate(double rotation) async {
+    _turtleCanvasController.draw(
+      linesToDraw: _drawedLines,
+      turtleAngle: _currentTurtleAngle,
+      toTurtleAngle: _currentTurtleAngle + rotation
+    );
   }
 }

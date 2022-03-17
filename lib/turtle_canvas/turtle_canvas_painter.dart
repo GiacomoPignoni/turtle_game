@@ -1,17 +1,18 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:turtle_game/models/pair.dart';
 
 class TurtleCanvasPainter extends CustomPainter {
   final double animationProgress;
-  final Path staticPath;
+  final List<Pair<Offset, Offstage>> linesToDraw;
   final Path? animatedPath;
   final double turtleAngle;
   final double toTurtleAngle;
 
   TurtleCanvasPainter({
     required this.animationProgress,
-    required this.staticPath,
+    required this.linesToDraw,
     required this.animatedPath,
     required this.turtleAngle,
     required this.toTurtleAngle
@@ -25,7 +26,7 @@ class TurtleCanvasPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    final shiftedStaticPath =  staticPath.shift(Offset(size.width / 2, size.height / 2));
+    final shiftedStaticPath =  linesToDraw.shift(Offset(size.width / 2, size.height / 2));
     shiftedStaticPath.close();
     canvas.drawPath(shiftedStaticPath, pathPaint);
 

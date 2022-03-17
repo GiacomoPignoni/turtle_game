@@ -1,29 +1,31 @@
 import 'dart:ui';
 
+import 'package:turtle_game/models/pair.dart';
+
 class TurtleCavnasStateModel {
-  final Path staticPath;
-  final Path? toDrawPath;
-  double turtleOrientation;
-  final double toTurtleOrientation;
+  final List<Pair<Offset, Offset>> linesToDraw;
+  final Path? toAnimatePath;
+  double turtleAngle;
+  final double toTurtleAngle;
 
   TurtleCavnasStateModel({
-    required this.staticPath,
-    required this.toDrawPath,
-    required this.turtleOrientation,
-    required this.toTurtleOrientation
+    required this.linesToDraw,
+    required this.toAnimatePath,
+    required this.turtleAngle,
+    required this.toTurtleAngle
   });
 
   TurtleCavnasStateModel copyWith({
-    Path? staticPath,
-    Path? toDrawPath,
-    double? turtleOrientation,
-    double? toTurtleOrientation 
+    List<Pair<Offset, Offset>>? linesToDraw,
+    Path? toAnimatePath,
+    double? turtleAngle,
+    double? toTurtleAngle 
   }) {
     return TurtleCavnasStateModel(
-      staticPath: staticPath ?? this.staticPath,
-      toDrawPath: toDrawPath,
-      turtleOrientation: turtleOrientation ?? this.turtleOrientation,
-      toTurtleOrientation: toTurtleOrientation ?? this.toTurtleOrientation
+      linesToDraw: linesToDraw ?? this.linesToDraw,
+      toAnimatePath: toAnimatePath,
+      turtleAngle: turtleAngle ?? this.turtleAngle,
+      toTurtleAngle: toTurtleAngle ?? this.toTurtleAngle
     );
   }
 }

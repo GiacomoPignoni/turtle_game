@@ -37,10 +37,10 @@ class TurtleCanvasState extends State<TurtleCanvas> with TickerProviderStateMixi
               return CustomPaint(
                 painter: TurtleCanvasPainter(
                   animationProgress: widget.controller.painterAnimation.value,
-                  staticPath: canvasState.staticPath,
-                  animatedPath: canvasState.toDrawPath, 
-                  turtleAngle: canvasState.turtleOrientation,
-                  toTurtleAngle: canvasState.toTurtleOrientation
+                  linesToDraw: Path(),
+                  animatedPath: canvasState.toAnimatePath, 
+                  turtleAngle: canvasState.turtleAngle,
+                  toTurtleAngle: canvasState.toTurtleAngle
                 )
               );
             }
