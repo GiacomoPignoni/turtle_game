@@ -1,52 +1,103 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
+import 'package:turtle_game/turtle_canvas/turtle_canvas_line.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_painter.dart';
-import 'package:turtle_game/turtle_canvas/turtle_cavans_state_model.dart';
 
 class TurtleCanvas extends StatefulWidget {
-  final TurtleCanvasController controller;
+  final Alignment alignment;
 
-  const TurtleCanvas({
-    required this.controller,
-    Key? key
+  const TurtleCanvas({ 
+    Key? key,
+    this.alignment = Alignment.center
   }) : super(key: key);
 
   @override
   State<TurtleCanvas> createState() => TurtleCanvasState();
 }
 
-class TurtleCanvasState extends State<TurtleCanvas> with TickerProviderStateMixin {
+class TurtleCanvasState extends State<TurtleCanvas> with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  );
+
+  late final Animation<double> _painterAnimation = Tween<double>(begin: 0, end: 1).animate(_animationController);
+
+  final StreamController<void> _animationCompleted = StreamController.broadcast();
+
+  Path pathToDraw = Path();
+  TurtleCanvasLine? lineToAnimate;
+  double turtleAngle = 0;
+  double toTurtleAngle = 0;
+  Offset turtlePosition = const Offset(0, 0);
+
   @override
   void initState() {
-    widget.controller.inizializeAnimation(this, const Duration(milliseconds: 500));
+    _animationController.addStatusListener((newState) {
+      if(newState == AnimationStatus.completed) {
+        _animationCompleted.add(null);
+      }
+    });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 300,
-      color: Colors.yellow[50],
-      child: ValueListenableBuilder<TurtleCavnasStateModel>(
-        valueListenable: widget.controller.canvasState,
-        builder: (context, canvasState, child) {
-          return AnimatedBuilder(
-            animation: widget.controller.painterAnimation,
-            builder: (context, snapshot) {
-              return CustomPaint(
-                painter: TurtleCanvasPainter(
-                  animationProgress: widget.controller.painterAnimation.value,
-                  linesToDraw: Path(),
-                  animatedPath: canvasState.toAnimatePath, 
-                  turtleAngle: canvasState.turtleAngle,
-                  toTurtleAngle: canvasState.toTurtleAngle
-                )
-              );
-            }
-          );
-        }
+    return SizedBox.expand(
+      child: Container(
+        color: Colors.yellow[50],
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, snapshot) {
+            return CustomPaint(
+              painter: TurtleCanvasPainter(
+                animationProgress: _painterAnimation.value,
+                alignment: widget.alignment,
+                pathToDraw: pathToDraw,
+                lineToAnimate: lineToAnimate, 
+                turtleAngle: turtleAngle,
+                toTurtleAngle: toTurtleAngle,
+                turtlePosition: turtlePosition
+              )
+            );
+          }
+        )
       ),
     );
+  }
+
+  Future<void> draw({
+    required Path pathToDraw,
+    TurtleCanvasLine? lineToAnimate,
+    required double turtleAngle,
+    double? toTurtleAngle,
+    required Offset turtlePosition
+  }) async {
+    _animationController.reset();
+    setState(() {
+      this.pathToDraw = pathToDraw;
+      this.lineToAnimate = lineToAnimate;
+      this.turtleAngle = turtleAngle;
+      this.toTurtleAngle = toTurtleAngle ?? turtleAngle;
+      this.turtlePosition = turtlePosition;
+    });
+    _animationController.forward();
+
+    await _animationCompleted.stream.first;
+  }
+
+  clear({
+    required double turtleAngle,
+    required Offset turtlePosition 
+  }) {
+    setState(() {
+      this.turtleAngle = turtleAngle;
+      this.turtlePosition = turtlePosition;
+
+      pathToDraw = Path();
+      lineToAnimate = null;
+      toTurtleAngle = turtleAngle;
+    });
   }
 }

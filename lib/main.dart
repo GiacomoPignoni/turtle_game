@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:turtle_game/commands/commands_container.dart';
+import 'package:turtle_game/commands/commands_state.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
-import 'package:turtle_game/turtle_commands.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,36 +29,38 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => TurtleCanvasController()),
-        Provider(create: (context) => TurtleCommands(Provider.of<TurtleCanvasController>(context)))
+        ChangeNotifierProvider(create: (context) => CommandsState())
       ],
       builder: (context, child) {
         return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TurtleCanvas(
-                  controller: Provider.of<TurtleCanvasController>(context),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => Provider.of<TurtleCommands>(context, listen: false).play(), 
-                        child: const Text("Play")
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isHorizontal = constraints.maxWidth > 500;
+
+                return Flex(
+                  direction: isHorizontal ? Axis.horizontal : Axis.vertical,
+                  children: [
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: isHorizontal ? 2 : 1,
+                      child: TurtleCanvas(
+                        key: Provider.of<CommandsState>(context, listen: false).turtleCanvasKey,
                       ),
-                      ElevatedButton(
-                        onPressed: () => Provider.of<TurtleCommands>(context, listen: false).reset(), 
-                        child: const Text("Reset")
+                    ),
+                    isHorizontal 
+                      ? const VerticalDivider(width: 1, color: Colors.black, thickness: 1)
+                      : const Divider(height: 1, color: Colors.black, thickness: 1),
+                    Flexible(
+                      child: ConstrainedBox(
+                        constraints: isHorizontal ? const BoxConstraints(maxWidth: 300) : const BoxConstraints(),
+                        child: const CommandsContainer()
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                    )
+                  ],
+                );
+              },
+            )
           ),
         );
       }

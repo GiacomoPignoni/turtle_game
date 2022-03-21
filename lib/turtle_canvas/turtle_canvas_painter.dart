@@ -1,66 +1,61 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:turtle_game/models/pair.dart';
+import 'package:turtle_game/turtle_canvas/turtle_canvas_line.dart';
 
 class TurtleCanvasPainter extends CustomPainter {
   final double animationProgress;
-  final List<Pair<Offset, Offstage>> linesToDraw;
-  final Path? animatedPath;
+  final Path pathToDraw;
+  final TurtleCanvasLine? lineToAnimate;
   final double turtleAngle;
   final double toTurtleAngle;
+  final Offset turtlePosition;
+  final Alignment alignment;
 
   TurtleCanvasPainter({
     required this.animationProgress,
-    required this.linesToDraw,
-    required this.animatedPath,
+    required this.pathToDraw,
+    this.lineToAnimate,
     required this.turtleAngle,
-    required this.toTurtleAngle
+    required this.toTurtleAngle,
+    required this.turtlePosition,
+    required this.alignment
   });
 
   @override
   void paint(Canvas canvas, Size size) {  
-    final pathPaint = Paint()
+    final linePaint = Paint()
       ..color = Colors.blueGrey[900]!
       ..strokeCap = StrokeCap.square
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    final shiftedStaticPath =  linesToDraw.shift(Offset(size.width / 2, size.height / 2));
-    shiftedStaticPath.close();
-    canvas.drawPath(shiftedStaticPath, pathPaint);
+    //Draw static path
+    final alignmentOffset = _calculateAlinmentOffset(size);
+    canvas.drawPath(pathToDraw.shift(alignmentOffset), linePaint);
+    Offset realTurtlePosition = turtlePosition + alignmentOffset;
 
-    final shiftedStaticPathRect = shiftedStaticPath.getBounds();
-    Offset turtlePosition = Offset(shiftedStaticPathRect.right, shiftedStaticPathRect.left);
+    //Calculate and draw animate line
+    if(lineToAnimate != null) {
+      final partialEndPoint = lineToAnimate!.calculatePartialEndPoint(animationProgress);
 
-    if(animatedPath != null) {
-      final shiftedAnimatedPath = animatedPath!.shift(Offset(size.width / 2, size.height / 2));
-      final partialAnimatedPath = _createAnimatedPath(shiftedAnimatedPath, animationProgress);
-      canvas.drawPath(partialAnimatedPath, pathPaint);
+      canvas.drawLine(
+        lineToAnimate!.startPoint + alignmentOffset,
+        partialEndPoint + alignmentOffset,
+        linePaint
+      );
 
-      final partialAnimatedPathRect = partialAnimatedPath.getBounds();
-      turtlePosition = Offset(partialAnimatedPathRect.right, partialAnimatedPathRect.left);
+      realTurtlePosition = partialEndPoint;
     }
 
+    //Calculate turtle angle
     double calculatedTurtleAngle = turtleAngle;
-    // If turtleAngle is differnt from toTurtleAngle I have to animate the rotation 
     if(turtleAngle != toTurtleAngle) {
       calculatedTurtleAngle = turtleAngle + ((toTurtleAngle - turtleAngle) * animationProgress);
     }
-    _drawTurtle(canvas, turtlePosition, calculatedTurtleAngle * (pi / 180));
+    _drawTurtle(canvas, realTurtlePosition, calculatedTurtleAngle * (pi / 180));
   }
 
   _drawTurtle(Canvas canvas, Offset position, double radianAngle) {
-    const turtleDimension = 15;
-    final radius = turtleDimension / sqrt(3);
-
-    final frontPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
-    final path = Path()
-      ..moveTo(frontPoint.dx, frontPoint.dy)
-      ..lineTo(radius * cos(radianAngle + (4 * pi / 3)) + position.dx, radius * sin(radianAngle + (4 * pi / 3)) + position.dy)
-      ..lineTo(radius * cos(radianAngle + (2 * pi / 3)) + position.dx, radius * sin(radianAngle + (2 * pi / 3)) + position.dy)
-      ..close();
-    
     final turtlePaint = Paint()
       ..color = Colors.red[800]!
       ..strokeCap = StrokeCap.round
@@ -71,45 +66,24 @@ class TurtleCanvasPainter extends CustomPainter {
     final frontPointPaint = Paint()
       ..color = Colors.blue;
 
+    const turtleDimension = 15;
+    final radius = turtleDimension / sqrt(3);
+
+    final frontPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
+    final path = Path()
+      ..moveTo(frontPoint.dx, frontPoint.dy)
+      ..lineTo(radius * cos(radianAngle + (4 * pi / 3)) + position.dx, radius * sin(radianAngle + (4 * pi / 3)) + position.dy)
+      ..lineTo(radius * cos(radianAngle + (2 * pi / 3)) + position.dx, radius * sin(radianAngle + (2 * pi / 3)) + position.dy)
+      ..close();
+
     canvas.drawPath(path, turtlePaint);
     canvas.drawCircle(frontPoint, 2, frontPointPaint);
   }
 
-  Path _createAnimatedPath(Path originalPath, double animationPercent) {
-    final totalLength = originalPath.computeMetrics()
-      .fold(0.0, (double prev, PathMetric metric) => prev + metric.length);
-
-    final currentLength = totalLength * animationPercent;
-
-    return _extractPathUntilLength(originalPath, currentLength);
-  }
-
-  Path _extractPathUntilLength(Path originalPath, double length) {
-    var currentLength = 0.0;
-    final path = Path();
-    var metricsIterator = originalPath.computeMetrics().iterator;
-
-    while (metricsIterator.moveNext()) {
-      var metric = metricsIterator.current;
-
-      var nextLength = currentLength + metric.length;
-
-      final isLastSegment = nextLength > length;
-      if (isLastSegment) {
-        final remainingLength = length - currentLength;
-        final pathSegment = metric.extractPath(0.0, remainingLength);
-
-        path.addPath(pathSegment, Offset.zero);
-        break;
-      } else {
-        final pathSegment = metric.extractPath(0.0, metric.length);
-        path.addPath(pathSegment, Offset.zero);
-      }
-
-      currentLength = nextLength;
-    }
-
-    return path;
+  _calculateAlinmentOffset(Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height /2;
+    return Offset(centerX, centerY) + Offset(alignment.x * centerX, alignment.y * centerY);
   }
 
   @override
