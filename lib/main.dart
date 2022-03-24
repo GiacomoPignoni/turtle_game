@@ -54,10 +54,10 @@ class MyHomePage extends StatelessWidget {
                       : const Divider(height: 1, color: Colors.black, thickness: 1),
                     Flexible(
                       child: ConstrainedBox(
-                        constraints: isHorizontal ? const BoxConstraints(maxWidth: 300) : const BoxConstraints(),
+                        constraints: isHorizontal ? const BoxConstraints(maxWidth: 300, minWidth: 300) : const BoxConstraints(),
                         child: const CommandsContainer()
                       ),
-                    )
+                    ),
                   ],
                 );
               },

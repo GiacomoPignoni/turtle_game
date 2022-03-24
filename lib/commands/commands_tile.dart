@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:turtle_game/commands/command_models.dart';
+import 'package:turtle_game/commands/commands_container.dart';
 import 'package:turtle_game/commands/commands_state.dart';
-
-class CommandTileDragData {
-  final Command command;
-  final int? index;
-
-  CommandTileDragData(this.command, this.index);
-}
 
 class CommandTile extends StatelessWidget {
   final Command command;
@@ -22,11 +16,10 @@ class CommandTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Draggable(
-      feedback: CommandTileFeedback(command: command),
-      data: CommandTileDragData(command, index),
-      child: DragTarget<CommandTileDragData>(
-        onAccept: (CommandTileDragData  data) => _onAccept(context, data),
+    return ReorderableDragStartListener(
+      index: index,
+      child: DragTarget<CommandDragData>(
+        onAccept: (CommandDragData  data) => _onAccept(context, data),
         builder: (context, candidateData, rejectedData) => AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: (candidateData.isNotEmpty && candidateData.first!.index != index) 
@@ -36,7 +29,7 @@ class CommandTile extends StatelessWidget {
           child: AnimatedBuilder(
             animation: command,
             builder: (context, child) => CommandTileBody(
-              name: command.toString(),
+              command: command,
             )
           ),
         )
@@ -44,57 +37,58 @@ class CommandTile extends StatelessWidget {
     );
   }
 
-  _onAccept(BuildContext context, CommandTileDragData data) {
-    if(data.runtimeType == CommandTileDragData) {
-      if(data.index != null) {
-        Provider.of<CommandsState>(context, listen: false).reorder(data.index!, index + 1);
-      } else {
-        Provider.of<CommandsState>(context, listen: false).insert(data.command, index + 1);
-      }
+  _onAccept(BuildContext context, CommandDragData data) {
+    if(data.runtimeType == CommandDragData) {
+      Provider.of<CommandsState>(context, listen: false).insert(data.command, index + 1);
     }
   }
 }
 
 class CommandTileBody extends StatelessWidget {
-  final String name;
-  final String? value;
-
-  const CommandTileBody({
-    Key? key,
-    required this.name,
-    this.value
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: const BoxDecoration(
-        color: Colors.red,
-      ),
-      child: Row(
-        children: [
-          Text(name),
-          value != null ? Text(value!) : const SizedBox.shrink(),
-        ],
-      ),
-    );
-  }
-}
-
-class CommandTileFeedback extends StatelessWidget {
   final Command command;
 
-  const CommandTileFeedback({
+  const CommandTileBody({
     Key? key,
     required this.command
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CommandTileBody(
-      name: command.toString(),
+    return Container(
+      width: 300,
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: _getColor(),
+      ),
+      child: Row(
+        children: [
+          Text(command.toString()),
+          Text(_getValueToShow()),
+        ],
+      ),
     );
+  }
+
+  String _getValueToShow() {
+    switch(command.runtimeType) {
+      case Forward:
+        return (command as Forward).distance.toString();
+      case Rotate:
+        return (command as Rotate).rotation.toString();
+      default: 
+        return "";
+    }
+  }
+
+  Color _getColor() {
+    switch(command.runtimeType) {
+      case Forward:
+        return Colors.yellow;
+      case Rotate:
+        return Colors.blue;
+      default: 
+        return Colors.white;
+    }
   }
 }
