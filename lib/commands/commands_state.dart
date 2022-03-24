@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:turtle_game/commands/command_models.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas.dart';
+import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
 import 'package:turtle_game/turtle_canvas/turtle_canvas_line.dart';
 
 class CommandsState extends ChangeNotifier {
-  final GlobalKey<TurtleCanvasState> turtleCanvasKey = GlobalKey<TurtleCanvasState>();
+  final TurtleCanvasController turtleCanvasController = TurtleCanvasController();
 
   final List<Command> commands = [
     Forward(50),
@@ -15,11 +15,11 @@ class CommandsState extends ChangeNotifier {
     Forward(50)
   ];
 
-  bool _running = false;
+  final ValueNotifier<bool> running = ValueNotifier(false);
+
   Path _drawedPath = Path();
   double _currentTurtleAngle = 0;
   Offset _currentPosition = const Offset(0, 0);
-
   int _currentCommandIndex = -1;
 
   reorder(int oldIndex, int newIndex) {
@@ -37,21 +37,21 @@ class CommandsState extends ChangeNotifier {
   }
 
   Future<void> play() async {
-    if(_running == false) {
-      _running = true;
+    if(running.value == false) {
+      running.value = true;
       reset();
 
       for(final command in commands) { 
         await _execCommand(command);
       }
 
-      _running = false;
+      running.value = false;
     }
   }
 
   Future<void> onStep() async {
-    if(_running == false) {
-      _running = true;
+    if(running.value == false) {
+      running.value = true;
 
       if(_currentCommandIndex == -1) {
         _currentCommandIndex = 0;
@@ -59,25 +59,17 @@ class CommandsState extends ChangeNotifier {
 
       await _execCommand(commands[_currentCommandIndex]);
       _currentCommandIndex++;
-      _running = false;
+      running.value = false;
     }
   }
 
-  test() {
-    _execCommand(Forward(50));
-  }
-
-  testRotate() {
-    _execCommand(Rotate(90));
-  }
-
   reset() {
-    if(_running == false) {
+    if(running.value == false) {
       _currentCommandIndex = -1;
       _drawedPath = Path();
       _currentTurtleAngle = 0;
       _currentPosition = const Offset(0, 0);
-      turtleCanvasKey.currentState?.clear(
+      turtleCanvasController.clear(
         turtleAngle: _currentTurtleAngle,
         turtlePosition: _currentPosition
       );
@@ -105,7 +97,7 @@ class CommandsState extends ChangeNotifier {
       endPoint: Offset(newX, newY)
     );
 
-    await turtleCanvasKey.currentState?.draw(
+    await turtleCanvasController.draw(
       pathToDraw: Path.from(_drawedPath),
       lineToAnimate: lineToAnimate,
       turtleAngle: _currentTurtleAngle,
@@ -118,7 +110,7 @@ class CommandsState extends ChangeNotifier {
   }
 
   Future<void> _rotate(double rotation) async {
-    await turtleCanvasKey.currentState?.draw(
+    await turtleCanvasController.draw(
       pathToDraw: _drawedPath,
       lineToAnimate: null,
       turtleAngle: _currentTurtleAngle,

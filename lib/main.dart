@@ -45,7 +45,8 @@ class MyHomePage extends StatelessWidget {
                       fit: FlexFit.tight,
                       flex: isHorizontal ? 2 : 1,
                       child: TurtleCanvas(
-                        key: Provider.of<CommandsState>(context, listen: false).turtleCanvasKey,
+                        controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
+                        alignment: Alignment.center,
                       ),
                     ),
                     isHorizontal 
