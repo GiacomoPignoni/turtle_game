@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_line.dart';
+import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_line.dart';
 
 class TurtleCanvasController {
   bool _inizialized = false;
@@ -67,6 +67,20 @@ class TurtleCanvasController {
       toTurtleAngle: turtleAngle,
       turtlePosition: turtlePosition
     );
+  }
+
+  pauseAnimation() {
+    animationController.stop();
+  }
+
+  Future<void> playAnimation() async {
+    animationController.forward();
+    await _animationCompleted.stream.first;
+  }
+
+  dispose() {
+    animationController.dispose();
+    _animationCompleted.close();
   }
 }
 

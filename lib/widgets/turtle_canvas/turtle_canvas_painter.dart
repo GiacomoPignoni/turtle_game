@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_line.dart';
+import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_line.dart';
 
 class TurtleCanvasPainter extends CustomPainter {
   final double animationProgress;
@@ -44,7 +44,7 @@ class TurtleCanvasPainter extends CustomPainter {
         linePaint
       );
 
-      realTurtlePosition = partialEndPoint;
+      realTurtlePosition = partialEndPoint + alignmentOffset;
     }
 
     //Calculate turtle angle

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_controller.dart';
-import 'package:turtle_game/turtle_canvas/turtle_canvas_painter.dart';
+import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_controller.dart';
+import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_painter.dart';
 
 class TurtleCanvas extends StatefulWidget {
   final Alignment alignment;

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:turtle_game/commands/command_models.dart';
-import 'package:turtle_game/commands/commands_container.dart';
-import 'package:turtle_game/commands/commands_state.dart';
+import 'package:turtle_game/models/command.dart';
 
 class CommandTile extends StatelessWidget {
   final Command command;
@@ -18,29 +15,10 @@ class CommandTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableDragStartListener(
       index: index,
-      child: DragTarget<CommandDragData>(
-        onAccept: (CommandDragData  data) => _onAccept(context, data),
-        builder: (context, candidateData, rejectedData) => AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: (candidateData.isNotEmpty && candidateData.first!.index != index) 
-            ? const EdgeInsets.only(bottom: 50)
-            : EdgeInsets.zero,
-          color: Colors.transparent,
-          child: AnimatedBuilder(
-            animation: command,
-            builder: (context, child) => CommandTileBody(
-              command: command,
-            )
-          ),
-        )
-      ),
+      child: CommandTileBody(
+        command: command,
+      )
     );
-  }
-
-  _onAccept(BuildContext context, CommandDragData data) {
-    if(data.runtimeType == CommandDragData) {
-      Provider.of<CommandsState>(context, listen: false).insert(data.command, index + 1);
-    }
   }
 }
 
