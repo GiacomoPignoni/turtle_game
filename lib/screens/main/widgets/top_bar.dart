@@ -24,7 +24,7 @@ class TopBar extends StatelessWidget {
               const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.stop_rounded,
-                disabled: state.runningState == MainScreenRunningState.stopped,
+                disabled: state.runningState != MainScreenRunningState.running,
                 onPressed: state.stop,
               ),
               const SizedBox(width: 10),

@@ -9,7 +9,8 @@ import 'dart:async';
 enum MainScreenRunningState {
   stopped,
   running,
-  paused
+  paused,
+  finished
 }
 
 class MainScreenState extends ChangeNotifier {
@@ -21,11 +22,11 @@ class MainScreenState extends ChangeNotifier {
   ];
 
   final List<Command> commands = [
-    Forward(50),
-    Rotate(45),
-    Forward(50),
-    Rotate(45),
-    Forward(50)
+    const Forward(50),
+    const Rotate(45),
+    const Forward(50),
+    const Rotate(45),
+    const Forward(50)
   ];
 
   MainScreenRunningState runningState = MainScreenRunningState.stopped;
@@ -34,7 +35,6 @@ class MainScreenState extends ChangeNotifier {
   double _currentTurtleAngle = 0;
   Offset _currentPosition = const Offset(0, 0);
   int _currentCommandIndex = -1;
-  CancelableOperation? _playOperation;
 
   reorder(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) {
@@ -46,17 +46,34 @@ class MainScreenState extends ChangeNotifier {
   }
 
   insert(Command command, {int? index}) {
-    commands.insert(index ?? commands.length - 1, command);
+    commands.insert(index ?? commands.length, command);
     notifyListeners();
   }
 
-  play() {
-    _playOperation = CancelableOperation.fromFuture(_play());
+  Future<void> play() async {
+    if(runningState != MainScreenRunningState.running) {
+      final lastRunningState = runningState;
+      runningState = MainScreenRunningState.running;
+      notifyListeners();
+
+      if(lastRunningState == MainScreenRunningState.paused) {
+        await turtleCanvasController.playAnimation();
+      } else {
+        _reset();
+      }      
+
+      for(final command in commands) { 
+        if(runningState != MainScreenRunningState.running) return;
+        await _execCommand(command);
+      }
+
+      runningState = MainScreenRunningState.finished;
+      notifyListeners();
+    }
   }
 
   pause() {
     if(runningState == MainScreenRunningState.running) {
-      _playOperation?.cancel();
       turtleCanvasController.pauseAnimation();
       runningState = MainScreenRunningState.paused;
       notifyListeners();
@@ -65,7 +82,6 @@ class MainScreenState extends ChangeNotifier {
 
   stop() {
     if(runningState != MainScreenRunningState.stopped) {
-      _playOperation?.cancel();
       _reset();
       runningState = MainScreenRunningState.stopped;
       notifyListeners();
@@ -83,26 +99,6 @@ class MainScreenState extends ChangeNotifier {
 
       await _execCommand(commands[_currentCommandIndex]);
       _currentCommandIndex++;
-      runningState = MainScreenRunningState.stopped;
-    }
-  }
-
-  Future<void> _play() async {
-    if(runningState != MainScreenRunningState.running) {
-      final lastRunningState = runningState;
-      runningState = MainScreenRunningState.running;
-      notifyListeners();
-
-      if(lastRunningState == MainScreenRunningState.paused) {
-        await turtleCanvasController.playAnimation();
-      } else {
-        _reset();
-      }      
-
-      for(final command in commands) { 
-        await _execCommand(command);
-      }
-
       runningState = MainScreenRunningState.stopped;
     }
   }
