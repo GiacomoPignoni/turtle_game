@@ -62,11 +62,11 @@ class CommandTileBody extends StatelessWidget {
   Color _getColor() {
     switch(command.runtimeType) {
       case Forward:
-        return Colors.yellow;
+        return Forward.color;
       case Rotate:
-        return Colors.blue;
+        return Rotate.color;
       default: 
-        return Colors.white;
+        return Command.color;
     }
   }
 }

@@ -20,7 +20,7 @@ class MainScreenState extends ChangeNotifier {
     Rotate(90)
   ];
 
-  final List<Command> commands = const [
+  final List<Command> commands = [
     Forward(50),
     Rotate(45),
     Forward(50),

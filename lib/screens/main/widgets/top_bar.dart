@@ -21,11 +21,13 @@ class TopBar extends StatelessWidget {
                 disabled: state.runningState == MainScreenRunningState.running,
                 onPressed: state.play,
               ),
+              const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.stop_rounded,
                 disabled: state.runningState == MainScreenRunningState.stopped,
                 onPressed: state.stop,
               ),
+              const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.pause_rounded,
                 disabled: state.runningState != MainScreenRunningState.running,
@@ -60,22 +62,25 @@ class _TopBarButtonState extends State<TopBarButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.disabled ? null : widget.onPressed,
-      onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
-      onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
-      onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          color: _calculateBackgroundColor(), 
-          borderRadius: BorderRadius.circular(5)
-        ),
-        child: Icon(
-          widget.icon,
-          color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
+    return MouseRegion(
+      cursor: (widget.disabled) ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.disabled ? null : widget.onPressed,
+        onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
+        onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
+        onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          height: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            color: _calculateBackgroundColor(), 
+            borderRadius: BorderRadius.circular(5)
+          ),
+          child: Icon(
+            widget.icon,
+            color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
     );

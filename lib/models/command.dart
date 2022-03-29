@@ -1,8 +1,14 @@
+import 'package:flutter/material.dart';
+
 class Command {
+  static const Color color = Colors.white;
+
   const Command();
 }
 
 class Forward extends Command {
+  static const Color color = Colors.blue;
+
   final int distance;
 
   const Forward(this.distance);
@@ -14,6 +20,8 @@ class Forward extends Command {
 }
 
 class Rotate extends Command {
+  static const Color color = Colors.yellow;
+
   final double rotation;
 
   const Rotate(this.rotation);

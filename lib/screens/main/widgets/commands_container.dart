@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:turtle_game/models/command.dart';
 import 'package:turtle_game/screens/main/widgets/command_tile.dart';
 import 'package:turtle_game/screens/main/main_screen_state.dart';
 
-class CommandsContainer extends StatelessWidget {
+class CommandsContainer extends StatefulWidget {
   const CommandsContainer({Key? key}) : super(key: key);
+
+  @override
+  State<CommandsContainer> createState() => _CommandsContainerState();
+}
+
+class _CommandsContainerState extends State<CommandsContainer> {
+  double _selectableCommandsHeight = 120;
+  double _startDragY = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +35,22 @@ class CommandsContainer extends StatelessWidget {
                 ]
               )
             ),
-            const Divider(height: 1, color: Colors.black, thickness: 1),
-            SizedBox(
-              height: 120,
+            MouseRegion(
+              cursor: SystemMouseCursors.resizeUpDown,
+              child: GestureDetector(
+                onPanStart: ((details) => _startDragY = details.globalPosition.dy),
+                onPanUpdate: ((details) => setState(() {
+                  _selectableCommandsHeight -= details.globalPosition.dy - _startDragY;
+                  _startDragY = details.globalPosition.dy;
+                  
+                })),
+                child: const Divider(height: 4, color: Colors.black, thickness: 1)
+              ),
+            ),
+            (_selectableCommandsHeight > 0) ? SizedBox(
+              height: _selectableCommandsHeight,
               width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: ListView(
                 children: List.generate(
                   state.selectableCommands.length, 
                   (index) {
@@ -48,17 +65,10 @@ class CommandsContainer extends StatelessWidget {
                   }
                 ),
               ),
-            )
+            ) : const SizedBox.shrink()
           ],
         );
       }
     );
   }
-}
-
-class CommandDragData {
-  final Command command;
-  final int? index;
-
-  CommandDragData(this.command, this.index);
 }
