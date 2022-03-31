@@ -50,6 +50,11 @@ class MainScreenState extends ChangeNotifier {
     notifyListeners();
   }
 
+  remove(int index) {
+    commands.removeAt(index);
+    notifyListeners();
+  }
+
   Future<void> play() async {
     if(runningState != MainScreenRunningState.running) {
       final lastRunningState = runningState;

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:turtle_game/models/command.dart';
+import 'package:turtle_game/screens/main/main_screen_state.dart';
+import 'package:turtle_game/widgets/button_icon.dart';
 
 class CommandTile extends StatelessWidget {
   final Command command;
@@ -17,6 +20,8 @@ class CommandTile extends StatelessWidget {
       index: index,
       child: CommandTileBody(
         command: command,
+        showTrash: true,
+        onTapTrash: () => Provider.of<MainScreenState>(context, listen: false).remove(index),
       )
     );
   }
@@ -24,10 +29,14 @@ class CommandTile extends StatelessWidget {
 
 class CommandTileBody extends StatelessWidget {
   final Command command;
+  final bool showTrash;
+  final Function()? onTapTrash;
 
   const CommandTileBody({
     Key? key,
-    required this.command
+    required this.command,
+    this.showTrash = false,
+    this.onTapTrash
   }) : super(key: key);
 
   @override
@@ -37,36 +46,20 @@ class CommandTileBody extends StatelessWidget {
       height: 50,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: _getColor(),
+        color: command.getColor(),
       ),
       child: Row(
         children: [
           Text(command.toString()),
-          Text(_getValueToShow()),
+          Text(command.getValueToShow()),
+          if(showTrash) ButtonIcon(
+            icon: const Icon(
+              Icons.delete
+            ), 
+            onPressed: () => onTapTrash?.call()
+          )
         ],
       ),
     );
-  }
-
-  String _getValueToShow() {
-    switch(command.runtimeType) {
-      case Forward:
-        return (command as Forward).distance.toString();
-      case Rotate:
-        return (command as Rotate).rotation.toString();
-      default: 
-        return "";
-    }
-  }
-
-  Color _getColor() {
-    switch(command.runtimeType) {
-      case Forward:
-        return Forward.color;
-      case Rotate:
-        return Rotate.color;
-      default: 
-        return Command.color;
-    }
   }
 }

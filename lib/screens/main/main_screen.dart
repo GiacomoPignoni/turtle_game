@@ -4,6 +4,7 @@ import 'package:turtle_game/screens/main/widgets/commands_container.dart';
 import 'package:turtle_game/screens/main/main_screen_state.dart';
 import 'package:turtle_game/screens/main/widgets/top_bar.dart';
 import 'package:turtle_game/utils/break_points.dart';
+import 'package:turtle_game/widgets/conditional_wrapper.dart';
 import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas.dart';
 
 class MainScreen extends StatelessWidget {
@@ -35,10 +36,13 @@ class MainScreen extends StatelessWidget {
                               alignment: Alignment.center,
                             ),
                           ),
-                          isHorizontal 
-                            ? const VerticalDivider(width: 1, color: Colors.black, thickness: 1)
-                            : const Divider(height: 1, color: Colors.black, thickness: 1),
-                          Flexible(
+                          if (isHorizontal) 
+                            const VerticalDivider(width: 1, color: Colors.black, thickness: 1)
+                          else 
+                            const Divider(height: 1, color: Colors.black, thickness: 1),
+                          ConditionalWrapper(
+                            condition: isHorizontal == false,
+                            wrapperBuilder: (context, child) => Flexible(child: child),
                             child: ConstrainedBox(
                               constraints: isHorizontal ? const BoxConstraints(maxWidth: 300, minWidth: 300) : const BoxConstraints(),
                               child: const CommandsContainer()

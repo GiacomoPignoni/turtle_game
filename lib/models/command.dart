@@ -4,6 +4,14 @@ class Command {
   static const Color color = Colors.white;
 
   const Command();
+
+  Color getColor() {
+    return color;
+  }
+
+  String getValueToShow() {
+    return "";
+  }
 }
 
 class Forward extends Command {
@@ -17,6 +25,16 @@ class Forward extends Command {
   String toString() {
     return "Forward";
   }
+
+  @override
+  Color getColor() {
+    return color;
+  }
+
+  @override
+  String getValueToShow() {
+    return distance.toString();
+  }
 }
 
 class Rotate extends Command {
@@ -29,5 +47,15 @@ class Rotate extends Command {
   @override
   String toString() {
     return "Rotate";
+  }
+
+  @override
+  Color getColor() {
+    return color;
+  }
+
+  @override
+  String getValueToShow() {
+    return rotation.toString();
   }
 }

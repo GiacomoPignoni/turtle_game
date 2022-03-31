@@ -24,7 +24,7 @@ class TopBar extends StatelessWidget {
               const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.stop_rounded,
-                disabled: state.runningState != MainScreenRunningState.running,
+                disabled: state.runningState == MainScreenRunningState.stopped,
                 onPressed: state.stop,
               ),
               const SizedBox(width: 10),
@@ -70,7 +70,7 @@ class _TopBarButtonState extends State<TopBarButton> {
         onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
         onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 200),
           height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 15),
           decoration: BoxDecoration(

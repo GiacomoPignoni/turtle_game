@@ -31,14 +31,17 @@ class _CommandsContainerState extends State<CommandsContainer> {
                   child: CustomScrollView(
                     controller: _scrollController,
                     slivers : [
-                      SliverReorderableList(
-                        onReorder: state.reorder,
-                        itemCount: state.commands.length,
-                        itemBuilder: (context, index) => CommandTile(
-                          key: ValueKey(index),
-                          index: index,
-                          command: state.commands[index],
-                        ), 
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        sliver: SliverReorderableList(
+                          onReorder: state.reorder,
+                          itemCount: state.commands.length,
+                          itemBuilder: (context, index) => CommandTile(
+                            key: ValueKey(index),
+                            index: index,
+                            command: state.commands[index],
+                          ), 
+                        ),
                       ),
                     ]
                   )

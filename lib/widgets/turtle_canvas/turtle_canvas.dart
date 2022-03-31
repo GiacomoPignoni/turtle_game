@@ -5,10 +5,12 @@ import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_painter.dart';
 class TurtleCanvas extends StatefulWidget {
   final Alignment alignment;
   final TurtleCanvasController controller;
+  final double turtleDimension;
 
   const TurtleCanvas({ 
     Key? key,
     required this.controller,
+    this.turtleDimension = 25,
     this.alignment = Alignment.center,
   }) : super(key: key);
 
@@ -36,6 +38,7 @@ class TurtleCanvasState extends State<TurtleCanvas> with SingleTickerProviderSta
               builder: (context, drawModel, child) {
                 return CustomPaint(
                   painter: TurtleCanvasPainter(
+                    turtleDimension: widget.turtleDimension,
                     animationProgress:  widget.controller.painterAnimation.value,
                     alignment: widget.alignment,
                     pathToDraw: drawModel.pathToDraw,

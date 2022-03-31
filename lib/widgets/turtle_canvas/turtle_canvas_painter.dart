@@ -10,15 +10,17 @@ class TurtleCanvasPainter extends CustomPainter {
   final double toTurtleAngle;
   final Offset turtlePosition;
   final Alignment alignment;
+  final double turtleDimension;
 
   TurtleCanvasPainter({
     required this.animationProgress,
     required this.pathToDraw,
-    this.lineToAnimate,
     required this.turtleAngle,
     required this.toTurtleAngle,
     required this.turtlePosition,
-    required this.alignment
+    required this.alignment,
+    required this.turtleDimension,
+    this.lineToAnimate
   });
 
   @override
@@ -66,9 +68,7 @@ class TurtleCanvasPainter extends CustomPainter {
     final frontPointPaint = Paint()
       ..color = Colors.blue;
 
-    const turtleDimension = 15;
     final radius = turtleDimension / sqrt(3);
-
     final frontPoint = Offset(radius * cos(radianAngle) + position.dx, radius * sin(radianAngle) + position.dy);
     final path = Path()
       ..moveTo(frontPoint.dx, frontPoint.dy)
