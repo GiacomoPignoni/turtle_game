@@ -17,6 +17,7 @@ class MainScreen extends StatelessWidget {
       builder: (context, snapshot) {
         return Scaffold(
           body: SafeArea(
+            bottom: false,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final isHorizontal = BreakPoints.isHorizontal(constraints.maxWidth);

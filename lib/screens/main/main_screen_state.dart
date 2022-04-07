@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:turtle_game/models/command.dart';
@@ -7,7 +9,7 @@ import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_line.dart';
 import 'dart:async';
 
 enum MainScreenRunningState {
-  stopped,
+  start,
   running,
   paused,
   finished
@@ -29,12 +31,13 @@ class MainScreenState extends ChangeNotifier {
     const Forward(50)
   ];
 
-  MainScreenRunningState runningState = MainScreenRunningState.stopped;
+  MainScreenRunningState runningState = MainScreenRunningState.start;
 
   Path _drawedPath = Path();
   double _currentTurtleAngle = 0;
   Offset _currentPosition = const Offset(0, 0);
   int _currentCommandIndex = -1;
+  CancelableOperation<void>? _commandCancellableOperation;
 
   reorder(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) {
@@ -67,9 +70,12 @@ class MainScreenState extends ChangeNotifier {
         _reset();
       }      
 
-      for(final command in commands) { 
-        if(runningState != MainScreenRunningState.running) return;
-        await _execCommand(command);
+      _currentCommandIndex++;
+      for(int i = _currentCommandIndex; i < commands.length; i++) { 
+        if(runningState != MainScreenRunningState.running) break;
+        _currentCommandIndex = i;
+        _commandCancellableOperation = CancelableOperation.fromFuture(_execCommand(commands[i]));
+        await _commandCancellableOperation!.value;  
       }
 
       runningState = MainScreenRunningState.finished;
@@ -80,15 +86,17 @@ class MainScreenState extends ChangeNotifier {
   pause() {
     if(runningState == MainScreenRunningState.running) {
       turtleCanvasController.pauseAnimation();
+      _commandCancellableOperation?.cancel();
       runningState = MainScreenRunningState.paused;
       notifyListeners();
     }
   }
 
   stop() {
-    if(runningState != MainScreenRunningState.stopped) {
+    if(runningState != MainScreenRunningState.start) {
       _reset();
-      runningState = MainScreenRunningState.stopped;
+      _commandCancellableOperation?.cancel();
+      runningState = MainScreenRunningState.start;
       notifyListeners();
     }
   }
@@ -104,8 +112,14 @@ class MainScreenState extends ChangeNotifier {
 
       await _execCommand(commands[_currentCommandIndex]);
       _currentCommandIndex++;
-      runningState = MainScreenRunningState.stopped;
+      runningState = MainScreenRunningState.paused;
     }
+  }
+
+  reset() {
+    _reset();
+    runningState = MainScreenRunningState.start;
+    notifyListeners();
   }
 
   _reset() {
