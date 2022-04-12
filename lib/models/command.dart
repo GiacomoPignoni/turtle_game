@@ -15,7 +15,7 @@ class Command {
 }
 
 class Forward extends Command {
-  static const Color color = Colors.blue;
+  static const Color color = Color(0xFFE57373);
 
   final int distance;
 
@@ -38,7 +38,7 @@ class Forward extends Command {
 }
 
 class Rotate extends Command {
-  static const Color color = Colors.yellow;
+  static const Color color = Color(0xFF81C784);
 
   final double rotation;
 

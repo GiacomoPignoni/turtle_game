@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:turtle_game/models/command.dart';
 import 'package:turtle_game/screens/main/main_screen_state.dart';
 import 'package:turtle_game/widgets/button_icon.dart';
+import 'package:turtle_game/widgets/numpad_popup.dart';
 
 class CommandTile extends StatelessWidget {
   final Command command;
@@ -57,7 +58,8 @@ class CommandTileBody extends StatelessWidget {
               Icons.delete
             ), 
             onPressed: () => onTapTrash?.call()
-          )
+          ),
+          const NumpadPopupButton()
         ],
       ),
     );
