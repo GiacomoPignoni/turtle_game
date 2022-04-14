@@ -30,27 +30,29 @@ class TurtleCanvasState extends State<TurtleCanvas> with SingleTickerProviderSta
     return SizedBox.expand(
       child: Container(
         color: Colors.yellow[50],
-        child: AnimatedBuilder(
-          animation: widget.controller.animationController,
-          builder: (context, snapshot) {
-            return ValueListenableBuilder<TurtleCanvasDrawModel>(
-             valueListenable: widget.controller.drawModel,
-              builder: (context, drawModel, child) {
-                return CustomPaint(
-                  painter: TurtleCanvasPainter(
-                    turtleDimension: widget.turtleDimension,
-                    animationProgress:  widget.controller.painterAnimation.value,
-                    alignment: widget.alignment,
-                    pathToDraw: drawModel.pathToDraw,
-                    lineToAnimate: drawModel.lineToAnimate, 
-                    turtleAngle: drawModel.turtleAngle,
-                    toTurtleAngle: drawModel.toTurtleAngle,
-                    turtlePosition: drawModel.turtlePosition
-                  )
-                );
-              }
-            );
-          }
+        child: RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: widget.controller.animationController,
+            builder: (context, snapshot) {
+              return ValueListenableBuilder<TurtleCanvasDrawModel>(
+               valueListenable: widget.controller.drawModel,
+                builder: (context, drawModel, child) {
+                  return CustomPaint(
+                    painter: TurtleCanvasPainter(
+                      turtleDimension: widget.turtleDimension,
+                      animationProgress:  widget.controller.painterAnimation.value,
+                      alignment: widget.alignment,
+                      pathToDraw: drawModel.pathToDraw,
+                      lineToAnimate: drawModel.lineToAnimate, 
+                      turtleAngle: drawModel.turtleAngle,
+                      toTurtleAngle: drawModel.toTurtleAngle,
+                      turtlePosition: drawModel.turtlePosition
+                    )
+                  );
+                }
+              );
+            }
+          ),
         )
       ),
     );

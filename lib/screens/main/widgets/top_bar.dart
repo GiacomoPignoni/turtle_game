@@ -84,17 +84,19 @@ class _TopBarButtonState extends State<TopBarButton> {
         child: Tooltip(
           message: widget.disabled ? "" : widget.tooltipMessage,
           waitDuration: const Duration(milliseconds: 500),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 30,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            decoration: BoxDecoration(
-              color: _calculateBackgroundColor(), 
-              borderRadius: BorderRadius.circular(5)
-            ),
-            child: Icon(
-              widget.icon,
-              color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
+          child: RepaintBoundary(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 30,
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: _calculateBackgroundColor(), 
+                borderRadius: BorderRadius.circular(5)
+              ),
+              child: Icon(
+                widget.icon,
+                color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
           ),
         ),
