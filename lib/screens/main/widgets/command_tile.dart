@@ -42,33 +42,41 @@ class CommandTileBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: command.getColor(),
-      ),
-      child: Row(
-        children: [
-          Text(command.toString()),
-          Text(command.getValueToShow()),
-          if(showTrash) ButtonIcon(
-            icon: const Icon(
-              Icons.delete
-            ), 
-            onPressed: () => onTapTrash?.call()
+    return AnimatedBuilder(
+      animation: command,
+      builder: (context, child) {
+        return Container(
+          width: 300,
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: command.getColor(),
           ),
-          NumpadPopupButton(
-            builder: (context, showPopup) {
-              return ElevatedButton(
-                child: const Text("Ciao ciao"),
-                onPressed: () => showPopup(command.value), 
-              );
-            },
-          )
-        ],
-      ),
+          child: Row(
+            children: [
+              Text(command.toString()),
+              Text(command.getValueToShow()),
+              if(showTrash) ButtonIcon(
+                icon: const Icon(
+                  Icons.delete
+                ), 
+                onPressed: () => onTapTrash?.call()
+              ),
+              NumpadPopupButton(
+                builder: (context, showPopup) {
+                  return ElevatedButton(
+                    child: const Text("Ciao ciao"),
+                    onPressed: () async {
+                      final result = await showPopup(command.value);
+                      command.changeValue(result);
+                    }
+                  );
+                },
+              )
+            ],
+          ),
+        );
+      }
     );
   }
 }

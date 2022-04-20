@@ -16,17 +16,17 @@ enum MainScreenRunningState {
 class MainScreenState extends ChangeNotifier {
   final TurtleCanvasController turtleCanvasController = TurtleCanvasController();
 
-  final selectableCommands = const [
+  final selectableCommands = [
     Forward(50),
     Rotate(90)
   ];
 
   final List<Command> commands = [
-    const Forward(50),
-    const Rotate(45),
-    const Forward(50),
-    const Rotate(45),
-    const Forward(50)
+    Forward(50),
+    Rotate(45),
+    Forward(50),
+    Rotate(45),
+    Forward(50)
   ];
 
   MainScreenRunningState runningState = MainScreenRunningState.start;
@@ -47,7 +47,7 @@ class MainScreenState extends ChangeNotifier {
   }
 
   insert(Command command, {int? index}) {
-    commands.insert(index ?? commands.length, command);
+    commands.insert(index ?? commands.length, command.copy());
     notifyListeners();
   }
 

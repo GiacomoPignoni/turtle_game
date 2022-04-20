@@ -1,9 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:turtle_game/utils/extensions.dart';
+import 'package:turtle_game/widgets/button_icon.dart';
 
 class NumpadPopupButton extends StatefulWidget {
-  final Function(BuildContext context, Future<void> Function(double initialValue) showPopup) builder;
+  final Function(BuildContext context, Future<double?> Function(double initialValue) showPopup) builder;
 
   const NumpadPopupButton({
     required this.builder,
@@ -20,9 +21,9 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
     return widget.builder(context, _showPopup);
   }
 
-  Future<void> _showPopup(double initialValue) async {
+  Future<double?> _showPopup(double initialValue) async {
     final button = context.findRenderObject()! as RenderBox;
-    final offset = Offset(0, button.size.height + 10);
+    final offset = Offset(button.size.width + 10, button.size.height + 10);
     final overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
     final position = RelativeRect.fromRect(
       Rect.fromPoints(
@@ -33,7 +34,7 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
     );
 
     final navigator = Navigator.of(context, rootNavigator: false);
-    await navigator.push(_NumpadPopupRoute(
+    return await navigator.push(_NumpadPopupRoute(
       position: position,
       initialValue: initialValue,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -42,33 +43,23 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
   }
 }
 
-class _NumpadPopup extends StatefulWidget {
-  final double initialValue;
+
+class _NumpadPopup extends StatelessWidget {
   final _NumpadPopupRoute route;
-
-  const _NumpadPopup({
-    required this.route,
-    required this.initialValue
-  });
-
-  @override
-  State<_NumpadPopup> createState() => _NumpadPopupState();
-}
-
-class _NumpadPopupState extends State<_NumpadPopup> {
   final double _borderRadiusValue = 20;
   late final ValueNotifier<String> _currentValue;
 
-  @override
-  void initState() {
-    _currentValue = ValueNotifier(widget.initialValue.toStringWihtoutTrailingZeros());
-    super.initState();
+  _NumpadPopup({
+    required this.route,
+    required double initialValue
+  }) {
+    _currentValue = ValueNotifier(initialValue.toStringWihtoutTrailingZeros());
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
-      scale: widget.route.animation!,
+      scale: route.animation!,
       child: Container(
         width: 200,
         height: 300,
@@ -82,23 +73,34 @@ class _NumpadPopupState extends State<_NumpadPopup> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ValueListenableBuilder<String>(
-                        valueListenable: _currentValue,
-                        builder: (context, currentValue, child) {
-                          return AutoSizeText(
+                child: ValueListenableBuilder<String>(
+                  valueListenable: _currentValue,
+                  builder: (context, currentValue, child) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: AutoSizeText(
                             currentValue,
                             maxLines: 1,
                             style: const TextStyle(
                               fontSize: 40
                             ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: currentValue.isNotEmpty,
+                          child: ButtonIcon(
+                            icon: const Icon(Icons.backspace_rounded), 
+                            onPressed: () {
+                              if(currentValue.isNotEmpty) {
+                                _currentValue.value = currentValue.substring(0, currentValue.length - 1);
+                              }
+                            }
+                          ),
+                        )
+                      ],
+                    );
+                  }
                 ),
               )
             ),
@@ -107,21 +109,15 @@ class _NumpadPopupState extends State<_NumpadPopup> {
               buttonsData: [
                 _NumpadPopupButtonsData(
                   text: "1",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "1";
-                  })
+                  onPressed: () => _currentValue.value += "1"
                 ),
                 _NumpadPopupButtonsData(
                   text: "2",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "2";
-                  })
+                  onPressed: () => _currentValue.value += "2"
                 ),
                 _NumpadPopupButtonsData(
                   text: "3",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "3";
-                  })
+                  onPressed: () => _currentValue.value += "3"
                 )
               ],
             ),
@@ -129,21 +125,15 @@ class _NumpadPopupState extends State<_NumpadPopup> {
               buttonsData: [
                 _NumpadPopupButtonsData(
                   text: "4",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "4";
-                  })
+                  onPressed: () => _currentValue.value += "4"
                 ),
                 _NumpadPopupButtonsData(
                   text: "5",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "5";
-                  })
+                  onPressed: () => _currentValue.value += "5"
                 ),
                 _NumpadPopupButtonsData(
                   text: "6",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "6";
-                  })
+                  onPressed: () => _currentValue.value += "6"
                 )
               ],
             ),
@@ -151,21 +141,15 @@ class _NumpadPopupState extends State<_NumpadPopup> {
               buttonsData: [
                 _NumpadPopupButtonsData(
                   text: "7",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "7";
-                  })
+                  onPressed: () => _currentValue.value += "7"
                 ),
                 _NumpadPopupButtonsData(
                   text: "8",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "8";
-                  })
+                  onPressed: () => _currentValue.value += "8"
                 ),
                 _NumpadPopupButtonsData(
                   text: "9",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "9";
-                  })
+                  onPressed: () => _currentValue.value += "9"
                 )
               ],
             ),
@@ -175,19 +159,31 @@ class _NumpadPopupState extends State<_NumpadPopup> {
                   text: ".",
                   onPressed: () {
                     if(_currentValue.value.contains(".") == false) {
-                      setState(() {
-                        _currentValue.value += ".";
-                      });
+                      _currentValue.value += ".";
                     }
                   }
                 ),
                 _NumpadPopupButtonsData(
                   text: "0",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "0";
-                  })
+                  onPressed: () => _currentValue.value += "0"
                 ),
-                const _NumpadPopupButtonsData()
+                _NumpadPopupButtonsData(
+                  text: "+/-",
+                  onPressed: () {
+                    final currentSign = _currentValue.value[0];
+
+                    switch(currentSign) {                    
+                      case "-":
+                        _currentValue.value = "+" + _currentValue.value.substring(1);
+                        break;
+                      case "+":
+                        _currentValue.value = "-" + _currentValue.value.substring(1);
+                        break;
+                      default:
+                        _currentValue.value = "-" + _currentValue.value;
+                    }
+                  }
+                )
               ],
             ),
             _NumpadPopupButtonsRow(
@@ -195,31 +191,15 @@ class _NumpadPopupState extends State<_NumpadPopup> {
               borderRadius: _borderRadiusValue,
               buttonsData: [
                 _NumpadPopupButtonsData(
-                  text: ".",
-                  onPressed: () {
-                    if(_currentValue.value.contains(".") == false) {
-                      setState(() {
-                        _currentValue.value += ".";
-                      });
-                    }
-                  }
+                  child: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.of(context).pop()
                 ),
+                const _NumpadPopupButtonsData(),
                 _NumpadPopupButtonsData(
-                  text: "0",
-                  onPressed: () => setState(() {
-                    _currentValue.value += "0";
-                  })
-                ),
-                _NumpadPopupButtonsData(
-                  child: const Icon(
-                    Icons.backspace_rounded
-                  ),
+                  child: const Icon(Icons.check_rounded),
                   onPressed: () {
-                    if(_currentValue.value.isNotEmpty) {
-                       setState(() {
-                        _currentValue.value = _currentValue.value.substring(0, _currentValue.value.length - 1);
-                      });
-                    }
+                    final newValue = double.tryParse(_currentValue.value);
+                    Navigator.of(context).pop(newValue);
                   }
                 )
               ],

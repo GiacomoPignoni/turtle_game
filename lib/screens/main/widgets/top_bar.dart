@@ -20,28 +20,28 @@ class TopBar extends StatelessWidget {
                 icon: Icons.play_arrow_rounded,
                 disabled: state.runningState == MainScreenRunningState.running,
                 onPressed: state.play,
-                tooltipMessage: "Play",
+                tooltipText: "Play",
               ),
               const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.stop_rounded,
                 disabled: state.runningState == MainScreenRunningState.start || state.runningState == MainScreenRunningState.finished,
                 onPressed: state.stop,
-                tooltipMessage: "Stop",
+                tooltipText: "Stop",
               ),
               const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.pause_rounded,
                 disabled: state.runningState != MainScreenRunningState.running,
                 onPressed: state.pause,
-                tooltipMessage: "Pause",
+                tooltipText: "Pause",
               ),
               const SizedBox(width: 10),
               TopBarButton(
                 icon: Icons.replay_rounded,
                 disabled: state.runningState != MainScreenRunningState.finished,
                 onPressed: state.reset,
-                tooltipMessage: "Clear",
+                tooltipText: "Clear",
               ),
             ],
           ),
@@ -54,14 +54,14 @@ class TopBar extends StatelessWidget {
 class TopBarButton extends StatefulWidget {
   final Function() onPressed;
   final IconData icon;
-  final String tooltipMessage;
+  final String tooltipText;
   final bool disabled;
 
   const TopBarButton({
     Key? key,
     required this.onPressed,
     required this.icon,
-    required this.tooltipMessage,
+    required this.tooltipText,
     this.disabled = false,
   }) : super(key: key);
 
@@ -76,14 +76,14 @@ class _TopBarButtonState extends State<TopBarButton> {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: (widget.disabled) ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.disabled ? null : widget.onPressed,
-        onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
-        onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
-        onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
-        child: Tooltip(
-          message: widget.disabled ? "" : widget.tooltipMessage,
-          waitDuration: const Duration(milliseconds: 500),
+      child: Tooltip(
+        message: widget.disabled ? "" : widget.tooltipText,
+        waitDuration: const Duration(milliseconds: 500),
+        child: GestureDetector(
+          onTap: widget.disabled ? null : widget.onPressed,
+          onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
+          onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
+          onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
           child: RepaintBoundary(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),

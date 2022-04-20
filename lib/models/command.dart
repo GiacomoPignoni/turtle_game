@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
-class Command {
+class Command extends ChangeNotifier {
   static const Color color = Colors.white;
 
   double get value => double.nan;
 
-  const Command();
+  Command();
+
+  Command copy() {
+    return Command();
+  }
 
   Color getColor() {
     return color;
@@ -14,17 +18,24 @@ class Command {
   String getValueToShow() {
     return "";
   }
+
+  void changeValue(dynamic newValue) => {};
 }
 
 class Forward extends Command {
   static const Color color = Color(0xFFE57373);
 
-  final int distance;
+  int distance;
 
   @override
   double get value => distance.toDouble();
 
-  const Forward(this.distance);
+  Forward(this.distance);
+
+  @override
+  Forward copy() {
+    return Forward(distance);
+  }
 
   @override
   String toString() {
@@ -40,17 +51,30 @@ class Forward extends Command {
   String getValueToShow() {
     return distance.toString();
   }
+
+  @override
+  void changeValue(dynamic newValue) {
+    if(newValue.runtimeType == double) {
+      distance = (newValue as double).toInt();
+      notifyListeners();
+    }
+  }
 }
 
 class Rotate extends Command {
   static const Color color = Color(0xFF81C784);
 
-  final double rotation;
+  double rotation;
 
   @override
   double get value => rotation;
 
-  const Rotate(this.rotation);
+  Rotate(this.rotation);
+
+  @override
+  Rotate copy() {
+    return Rotate(rotation);
+  }
 
   @override
   String toString() {
@@ -65,5 +89,13 @@ class Rotate extends Command {
   @override
   String getValueToShow() {
     return rotation.toString();
+  }
+
+  @override
+  void changeValue(dynamic newValue) {
+    if(newValue.runtimeType == double) {
+      rotation = newValue;
+      notifyListeners();
+    }
   }
 }
