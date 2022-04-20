@@ -1,8 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:turtle_game/utils/extensions.dart';
 
 class NumpadPopupButton extends StatefulWidget {
+  final Function(BuildContext context, Future<void> Function(double initialValue) showPopup) builder;
+
   const NumpadPopupButton({
+    required this.builder,
     Key? key
   }) : super(key: key);
 
@@ -13,18 +17,10 @@ class NumpadPopupButton extends StatefulWidget {
 class _NumpadPopupButtonState extends State<NumpadPopupButton> {
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      child: const Text("Test"),
-      onPressed: () {
-        _showPopup();
-      }, 
-    );
+    return widget.builder(context, _showPopup);
   }
 
-  Future<void> _showPopup({
-    bool useRootNavigator = false,
-    double initialValue = 0
-  }) async {
+  Future<void> _showPopup(double initialValue) async {
     final button = context.findRenderObject()! as RenderBox;
     final offset = Offset(0, button.size.height + 10);
     final overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
@@ -36,7 +32,7 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
       Offset.zero & overlay.size,
     );
 
-    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+    final navigator = Navigator.of(context, rootNavigator: false);
     await navigator.push(_NumpadPopupRoute(
       position: position,
       initialValue: initialValue,
@@ -65,12 +61,7 @@ class _NumpadPopupState extends State<_NumpadPopup> {
 
   @override
   void initState() {
-    String tempCurrentValue = widget.initialValue.toString();
-    final last = tempCurrentValue.split(".").last;
-    if(last == "0") {
-      tempCurrentValue.replaceAll(last, "");
-    }
-    _currentValue = ValueNotifier(tempCurrentValue);
+    _currentValue = ValueNotifier(widget.initialValue.toStringWihtoutTrailingZeros());
     super.initState();
   }
 
@@ -80,7 +71,8 @@ class _NumpadPopupState extends State<_NumpadPopup> {
       scale: widget.route.animation!,
       child: Container(
         width: 200,
-        height: 250,
+        height: 300,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_borderRadiusValue),
           color: Colors.yellow,
@@ -178,6 +170,27 @@ class _NumpadPopupState extends State<_NumpadPopup> {
               ],
             ),
             _NumpadPopupButtonsRow(
+              buttonsData: [
+                _NumpadPopupButtonsData(
+                  text: ".",
+                  onPressed: () {
+                    if(_currentValue.value.contains(".") == false) {
+                      setState(() {
+                        _currentValue.value += ".";
+                      });
+                    }
+                  }
+                ),
+                _NumpadPopupButtonsData(
+                  text: "0",
+                  onPressed: () => setState(() {
+                    _currentValue.value += "0";
+                  })
+                ),
+                const _NumpadPopupButtonsData()
+              ],
+            ),
+            _NumpadPopupButtonsRow(
               lastRow: true,
               borderRadius: _borderRadiusValue,
               buttonsData: [
@@ -221,12 +234,12 @@ class _NumpadPopupState extends State<_NumpadPopup> {
 class _NumpadPopupButtonsData {
   final String? text;
   final Widget? child;
-  final void Function() onPressed;
+  final void Function()? onPressed;
 
   const _NumpadPopupButtonsData({
     this.text,
     this.child,
-    required this.onPressed
+    this.onPressed
   });
 }
 
@@ -250,61 +263,39 @@ class _NumpadPopupButtonsRow extends StatelessWidget{
         buttonsData.length, 
         (index) {
           final buttonData = buttonsData[index];
-          final borderRadiusAlignment = _calculateBorderRadiusAlignment(index);
 
           return _NumpadPopopButton(
             text: buttonData.text,
             child: buttonData.child,
             onPressed: buttonData.onPressed,
-            enabled: buttonData.text != null || buttonData.child != null,
             showTopBorder: firstRow,
             showBottomBorder: lastRow == false,
             showRightBorder: (index == buttonsData.length - 1) == false,
-            borderRadiusAlignment: borderRadiusAlignment,
-            borderRadius: borderRadiusAlignment == null ? null : borderRadius,
           );
         }
       ),
     );
-  }
-
-  Alignment? _calculateBorderRadiusAlignment(int index) {
-    if(lastRow) {
-      if(index == 0) {
-        return Alignment.bottomLeft;
-      } else if(index == buttonsData.length - 1) {
-        return Alignment.bottomRight;
-      }
-    }
-    
-    return null;
   }
 }
 
 class _NumpadPopopButton extends StatefulWidget {
   final String? text;
   final Widget? child;
-  final void Function() onPressed;
-  final bool enabled;
+  final void Function()? onPressed;
   final bool showTopBorder;
   final bool showRightBorder;
   final bool showBottomBorder;
   final Color borderColor;
-  final double? borderRadius;
-  final Alignment? borderRadiusAlignment;
 
   const _NumpadPopopButton({
-    required this.onPressed,
     this.text,
     this.child,
-    this.enabled = true,
+    this.onPressed,
     this.showTopBorder = false,
     this.showRightBorder = true,
     this.showBottomBorder = true,
-    this.borderColor = Colors.black,
-    this.borderRadius,
-    this.borderRadiusAlignment
-  }) : assert((borderRadiusAlignment != null || borderRadius == null) && (text == null || child == null));
+    this.borderColor = Colors.black
+  }) : assert(text == null || child == null);
 
   @override
   State<_NumpadPopopButton> createState() => _NumpadPopopButtonState();
@@ -315,55 +306,49 @@ class _NumpadPopopButtonState extends State<_NumpadPopopButton> {
 
   @override
   Widget build(BuildContext context) {
+    final enabled = widget.onPressed != null;
+
     return Flexible(
       child: MouseRegion(
-        cursor: (widget.enabled) ? SystemMouseCursors.click : SystemMouseCursors.alias,
+        cursor: (enabled) ? SystemMouseCursors.click : SystemMouseCursors.basic,
         child: GestureDetector(
-          onTapDown:  widget.enabled ? (_) => setState(() => _isDown = true) : null,
-          onTapCancel: widget.enabled ? () => setState(() => _isDown = false) : null,
-          onTapUp: widget.enabled ? (_) => setState(() => _isDown = false) : null,
+          onTapDown:  enabled ? (_) => setState(() => _isDown = true) : null,
+          onTapCancel: enabled ? () => setState(() => _isDown = false) : null,
+          onTapUp: enabled ? (_) => setState(() => _isDown = false) : null,
           onTap: widget.onPressed,
-          child: Stack(
-            children: [
-              RepaintBoundary(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 100),
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: _isDown && widget.text != null ? const Color(0x44101010) : const Color(0x00000000),
-                    borderRadius: BorderRadius.only(
-                      topLeft: (widget.borderRadiusAlignment == Alignment.topLeft) ? Radius.circular(widget.borderRadius!) : Radius.zero,
-                      topRight: (widget.borderRadiusAlignment == Alignment.topRight) ? Radius.circular(widget.borderRadius!) : Radius.zero,
-                      bottomRight: (widget.borderRadiusAlignment == Alignment.bottomRight) ? Radius.circular(widget.borderRadius!) : Radius.zero,
-                      bottomLeft: (widget.borderRadiusAlignment == Alignment.bottomLeft) ? Radius.circular(widget.borderRadius!) : Radius.zero,
-                    ),
-                  ),
-                  child: (widget.text != null) 
-                    ? Text(widget.text!) 
-                    : AnimatedScale(
-                      scale: _isDown && widget.child != null ? 0.9 : 1, 
-                      duration: const Duration(milliseconds: 100),
-                      child: widget.child,
-                    ),
+          child: RepaintBoundary(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 100),
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _isDown && widget.text != null ? const Color(0x44101010) : const Color(0x00000000),
+                border: Border(
+                  top: widget.showTopBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
+                  right: widget.showRightBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
+                  bottom: widget.showBottomBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none
                 ),
               ),
-              Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border(
-                    top: widget.showTopBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
-                    right: widget.showRightBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
-                    bottom: widget.showBottomBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none
-                  ),
-                ),
-              )
-            ],
+              child: _getChild()
+            ),
           ),
         ),
       )
     );
+  }
+
+  Widget _getChild() {
+    if(widget.text != null) {
+      return Text(widget.text!);
+    } else if(widget.child != null) {
+      return AnimatedScale(
+        scale: _isDown && widget.child != null ? 0.9 : 1, 
+        duration: const Duration(milliseconds: 100),
+        child: widget.child,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 }
 

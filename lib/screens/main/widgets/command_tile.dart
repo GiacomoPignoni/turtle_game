@@ -59,7 +59,14 @@ class CommandTileBody extends StatelessWidget {
             ), 
             onPressed: () => onTapTrash?.call()
           ),
-          const NumpadPopupButton()
+          NumpadPopupButton(
+            builder: (context, showPopup) {
+              return ElevatedButton(
+                child: const Text("Ciao ciao"),
+                onPressed: () => showPopup(command.value), 
+              );
+            },
+          )
         ],
       ),
     );
