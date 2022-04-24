@@ -23,7 +23,7 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
 
   Future<double?> _showPopup(double initialValue) async {
     final button = context.findRenderObject()! as RenderBox;
-    final offset = Offset(button.size.width + 10, button.size.height + 10);
+    const offset = Offset(0, 0);
     final overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
     final position = RelativeRect.fromRect(
       Rect.fromPoints(
@@ -39,6 +39,7 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
       initialValue: initialValue,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
+      parentSize: button.size
     ));
   }
 }
@@ -336,6 +337,7 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
   final RelativeRect position;
   final CapturedThemes capturedThemes;
   final double initialValue;
+  final Size parentSize;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 400);
@@ -353,7 +355,8 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
     required this.position,
     required this.barrierLabel,
     required this.capturedThemes,
-    required this.initialValue
+    required this.initialValue,
+    required this.parentSize
   });
 
   @override
@@ -381,6 +384,7 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
               position,
               Directionality.of(context),
               mediaQuery.padding,
+              parentSize
             ),
             child: capturedThemes.wrap(_NumpadPopup(
               route: this,
@@ -395,20 +399,19 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
 
 
 class _NumpadPopupRouteLayout extends SingleChildLayoutDelegate {
-  final double _kMenuScreenPadding = 30;
-  // Rectangle of underlying button, relative to the overlay's dimensions.
+  final double _globalChildPadding = 15;
+  final double _toggleSpace = 10;
+  
   final RelativeRect position;
-
-  // Whether to prefer going to the left or to the right.
   final TextDirection textDirection;
-
-  // The padding of unsafe area.
   final EdgeInsets padding;
+  final Size parentSize;
 
   _NumpadPopupRouteLayout(
     this.position,
     this.textDirection,
     this.padding,
+    this.parentSize
   );
 
   // We put the child wherever position specifies, so long as it will fit within
@@ -419,44 +422,33 @@ class _NumpadPopupRouteLayout extends SingleChildLayoutDelegate {
     // The menu can be at most the size of the overlay minus 8.0 pixels in each
     // direction.
     return BoxConstraints.loose(constraints.biggest).deflate(
-      EdgeInsets.all(_kMenuScreenPadding) + padding,
+      EdgeInsets.all(_globalChildPadding) + padding,
     );
   }
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    // Find the ideal horizontal position.
     double x;
     if (position.left > position.right) {
-      // Menu button is closer to the right edge, so grow to the left, aligned to the right edge.
       x = size.width - position.right - childSize.width;
-    } else if (position.left < position.right) {
-      // Menu button is closer to the left edge, so grow to the right, aligned to the left edge.
-      x = position.left;
     } else {
-      // Menu button is equidistant from both edges, so grow in reading direction.
-      switch (textDirection) {
-        case TextDirection.rtl:
-          x = size.width - position.right - childSize.width;
-          break;
-        case TextDirection.ltr:
-          x = position.left;
-          break;
-      }
+      x = position.left + parentSize.width + _toggleSpace;
     }
 
-    // Avoid going outside an area defined as the rectangle 8.0 pixels from the
-    // edge of the screen in every direction.
-    double y = position.top;
-    if (x < _kMenuScreenPadding + padding.left) {
-      x = _kMenuScreenPadding + padding.left;
-    } else if (x + childSize.width > size.width - _kMenuScreenPadding - padding.right) {
-      x = size.width - childSize.width - _kMenuScreenPadding - padding.right  ;
+    double y = position.top + (parentSize.height + _toggleSpace);
+    if (x < _globalChildPadding + padding.left) {
+      x = _globalChildPadding + padding.left;
+    } else if (x + childSize.width > size.width - _globalChildPadding - padding.right) {
+      x = size.width - childSize.width - _globalChildPadding - padding.right;
     }
-    if (y < _kMenuScreenPadding + padding.top) {
-      y = _kMenuScreenPadding + padding.top;
-    } else if (y + childSize.height > size.height - _kMenuScreenPadding - padding.bottom) {
-      y = size.height - padding.bottom - _kMenuScreenPadding - childSize.height ;
+    if (y < _globalChildPadding + padding.top) {
+      y = _globalChildPadding + padding.top;
+      x += (parentSize.width + _toggleSpace);
+    } else if (y + childSize.height > size.height - _globalChildPadding - padding.bottom) {
+      y = size.height - padding.bottom - _globalChildPadding - childSize.height;
+      if(position.left > position.right) {
+        x -= (parentSize.width + _toggleSpace);
+      }
     }
 
     return Offset(x, y);
