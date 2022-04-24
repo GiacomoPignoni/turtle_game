@@ -1,10 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:turtle_game/utils/extensions.dart';
+import 'package:turtle_game/extras/extensions.dart';
 import 'package:turtle_game/widgets/button_icon.dart';
 
 class NumpadPopupButton extends StatefulWidget {
-  final Function(BuildContext context, Future<double?> Function(double initialValue) showPopup) builder;
+  final Function(BuildContext context, Future<double?> Function(double initialValue, { bool showFullScreen }) showPopup) builder;
 
   const NumpadPopupButton({
     required this.builder,
@@ -21,7 +21,7 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
     return widget.builder(context, _showPopup);
   }
 
-  Future<double?> _showPopup(double initialValue) async {
+  Future<double?> _showPopup(double initialValue, { bool showFullScreen = false }) async {
     final button = context.findRenderObject()! as RenderBox;
     const offset = Offset(0, 0);
     final overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
@@ -39,19 +39,24 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
       initialValue: initialValue,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
-      parentSize: button.size
+      parentSize: button.size,
+      showFullScreen: showFullScreen
     ));
   }
 }
 
 
 class _NumpadPopup extends StatelessWidget {
-  final _NumpadPopupRoute route;
   final double _borderRadiusValue = 20;
+
+  final _NumpadPopupRoute route;
+  final bool showFullScreen;
+
   late final ValueNotifier<String> _currentValue;
 
   _NumpadPopup({
     required this.route,
+    required this.showFullScreen,
     required double initialValue
   }) {
     _currentValue = ValueNotifier(initialValue.toStringWihtoutTrailingZeros());
@@ -62,8 +67,8 @@ class _NumpadPopup extends StatelessWidget {
     return ScaleTransition(
       scale: route.animation!,
       child: Container(
-        width: 200,
-        height: 300,
+        width: showFullScreen ? null : 200,
+        height: showFullScreen ? null : 300,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_borderRadiusValue),
@@ -338,6 +343,7 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
   final CapturedThemes capturedThemes;
   final double initialValue;
   final Size parentSize;
+  final bool showFullScreen;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 400);
@@ -356,7 +362,8 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
     required this.barrierLabel,
     required this.capturedThemes,
     required this.initialValue,
-    required this.parentSize
+    required this.parentSize,
+    required this.showFullScreen
   });
 
   @override
@@ -384,11 +391,13 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
               position,
               Directionality.of(context),
               mediaQuery.padding,
-              parentSize
+              parentSize,
+              showFullScreen
             ),
             child: capturedThemes.wrap(_NumpadPopup(
               route: this,
               initialValue: initialValue,
+              showFullScreen: showFullScreen,
             )),
           );
         },
@@ -406,21 +415,18 @@ class _NumpadPopupRouteLayout extends SingleChildLayoutDelegate {
   final TextDirection textDirection;
   final EdgeInsets padding;
   final Size parentSize;
+  final bool showFullScreen;
 
   _NumpadPopupRouteLayout(
     this.position,
     this.textDirection,
     this.padding,
-    this.parentSize
+    this.parentSize,
+    this.showFullScreen
   );
 
-  // We put the child wherever position specifies, so long as it will fit within
-  // the specified parent size padded (inset) by 8. If necessary, we adjust the
-  // child's position so that it fits.
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    // The menu can be at most the size of the overlay minus 8.0 pixels in each
-    // direction.
     return BoxConstraints.loose(constraints.biggest).deflate(
       EdgeInsets.all(_globalChildPadding) + padding,
     );
@@ -428,6 +434,10 @@ class _NumpadPopupRouteLayout extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
+    if(showFullScreen) {
+      return Offset(_globalChildPadding, _globalChildPadding);
+    }
+
     double x;
     if (position.left > position.right) {
       x = size.width - position.right - childSize.width;

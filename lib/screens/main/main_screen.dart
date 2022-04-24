@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:turtle_game/screens/main/widgets/commands_container.dart';
 import 'package:turtle_game/screens/main/main_screen_state.dart';
 import 'package:turtle_game/screens/main/widgets/top_bar.dart';
-import 'package:turtle_game/utils/break_points.dart';
+import 'package:turtle_game/extras/screen_utils.dart';
 import 'package:turtle_game/widgets/conditional_wrapper.dart';
 import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas.dart';
 
@@ -20,8 +20,8 @@ class MainScreen extends StatelessWidget {
             bottom: false,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final isHorizontal = BreakPoints.isHorizontal(constraints.maxWidth);
-          
+                final isHorizontal = ScreenUtils.isHorizontal(constraints.maxWidth);
+              
                 return Column(
                   children: [
                     const TopBar(),
@@ -56,6 +56,12 @@ class MainScreen extends StatelessWidget {
                 );
               },
             )
+          ),
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.smartphone_rounded),
+            onPressed: () {
+              ScreenUtils.toggleSmartphoneView();
+            },
           ),
         );
       }

@@ -14,6 +14,7 @@ dependencies:
   provider: ^6.0.2
   async: ^2.8.2
   auto_size_text: ^3.0.0
+  window_manager: ^0.2.2
 
 dev_dependencies:
   flutter_test:

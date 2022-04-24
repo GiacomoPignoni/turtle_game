@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:turtle_game/extras/screen_utils.dart';
 import 'package:turtle_game/models/command.dart';
 import 'package:turtle_game/screens/main/main_screen_state.dart';
 import 'package:turtle_game/widgets/button_icon.dart';
@@ -67,7 +68,7 @@ class CommandTileBody extends StatelessWidget {
                   return ElevatedButton(
                     child: const Text("Ciao ciao"),
                     onPressed: () async {
-                      final result = await showPopup(command.value);
+                      final result = await showPopup(command.value, showFullScreen: ScreenUtils.isPortrait(context));
                       command.changeValue(result);
                     }
                   );

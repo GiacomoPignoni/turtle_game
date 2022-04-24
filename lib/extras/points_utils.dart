@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/painting.dart';
 
 class PointsUtils {

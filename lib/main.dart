@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:turtle_game/app.dart';
+import 'package:turtle_game/extras/screen_utils.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await setupWindow();
+
   runApp(const MyApp());
+}
+
+Future<void> setupWindow() async {
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = WindowOptions(
+    minimumSize: const Size(ScreenUtils.MIN_HORIZONTAL_WIDTH + 20, ScreenUtils.MIN_HORIZONTAL_HEIGHT),
+    center: true,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 }

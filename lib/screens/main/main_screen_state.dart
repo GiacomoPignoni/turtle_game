@@ -1,7 +1,7 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:turtle_game/models/command.dart';
-import 'package:turtle_game/utils/points_utils.dart';
+import 'package:turtle_game/extras/points_utils.dart';
 import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_controller.dart';
 import 'package:turtle_game/widgets/turtle_canvas/turtle_canvas_line.dart';
 import 'dart:async';
