@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:turtle_game/extras/extensions.dart';
 class Command extends ChangeNotifier {
   static const Color color = Colors.white;
 
@@ -88,7 +88,7 @@ class Rotate extends Command {
 
   @override
   String getValueToShow() {
-    return rotation.toString();
+    return rotation.toStringWihtoutTrailingZeros();
   }
 
   @override

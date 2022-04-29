@@ -38,9 +38,9 @@ class MainScreen extends StatelessWidget {
                             ),
                           ),
                           if (isHorizontal) 
-                            const VerticalDivider(width: 1, color: Colors.black, thickness: 1)
+                            const VerticalDivider(width: 2, thickness: 2)
                           else 
-                            const Divider(height: 1, color: Colors.black, thickness: 1),
+                            const Divider(height: 2, thickness: 2),
                           ConditionalWrapper(
                             condition: isHorizontal == false,
                             wrapperBuilder: (context, child) => Flexible(child: child),

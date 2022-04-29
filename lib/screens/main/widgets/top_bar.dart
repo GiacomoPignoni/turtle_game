@@ -11,8 +11,11 @@ class TopBar extends StatelessWidget {
       builder: (context, state, child) {
         return Container(
           height: 40,
-          color: Theme.of(context).primaryColor,
           padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor, width: 2))
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -70,33 +73,36 @@ class TopBarButton extends StatefulWidget {
 }
 
 class _TopBarButtonState extends State<TopBarButton> {
+  bool _isHover = false;
   bool _isDown = false;
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: (widget.disabled) ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-      child: Tooltip(
-        message: widget.disabled ? "" : widget.tooltipText,
-        waitDuration: const Duration(milliseconds: 500),
-        child: GestureDetector(
-          onTap: widget.disabled ? null : widget.onPressed,
-          onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
-          onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
-          onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
-          child: RepaintBoundary(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 30,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                color: _calculateBackgroundColor(), 
-                borderRadius: BorderRadius.circular(5)
-              ),
-              child: Icon(
-                widget.icon,
-                color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
-              ),
+      onHover: (_) => setState(() {
+        _isHover = true;
+      }),
+      onExit: (_) => setState(() {
+        _isHover = false;
+      }),
+      child: GestureDetector(
+        onTap: widget.disabled ? null : widget.onPressed,
+        onTapDown: widget.disabled ? null : (_) => setState(() => _isDown = true),
+        onTapUp: widget.disabled ? null : (details) => setState(() => _isDown = false),
+        onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
+        child: RepaintBoundary(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+              color: _calculateBackgroundColor(), 
+              borderRadius: BorderRadius.circular(5)
+            ),
+            child: Icon(
+              widget.icon,
+              color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ),
@@ -107,12 +113,14 @@ class _TopBarButtonState extends State<TopBarButton> {
   _calculateBackgroundColor() {
     if(widget.disabled) {
       return Colors.transparent;
-    } else {
-      if(_isDown) {
-        return const Color.fromRGBO(0, 0, 0, 0.4);
-      } else {
-        return const Color.fromRGBO(0, 0, 0, 0.2);
-      }
     }
+
+    if(_isDown) {
+      return const Color.fromRGBO(0, 0, 0, 0.4);
+    } else if(_isHover) {
+      return const Color.fromRGBO(0, 0, 0, 0.2);
+    }
+
+    return Colors.transparent;
   }
 }

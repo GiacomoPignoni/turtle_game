@@ -27,14 +27,17 @@ class _CommandsContainerState extends State<CommandsContainer> {
                     controller: _scrollController,
                     slivers : [
                       SliverPadding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 5),
                         sliver: SliverReorderableList(
                           onReorder: state.reorder,
                           itemCount: state.commands.length,
-                          itemBuilder: (context, index) => CommandTile(
-                            key: ValueKey(index),
-                            index: index,
-                            command: state.commands[index],
+                          itemBuilder: (context, index) => Padding(
+                            key: ValueKey(state.commands[index].hashCode),
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: CommandTile(
+                              index: index,
+                              command: state.commands[index],
+                            ),
                           ), 
                         ),
                       ),
@@ -45,7 +48,9 @@ class _CommandsContainerState extends State<CommandsContainer> {
                   initalHeight: 120, 
                   maxHeight: constraints.maxHeight * 0.8, 
                   minHeight: 50,
+                  toggleColor: Theme.of(context).dividerColor,
                   child: ListView(
+                    padding: const EdgeInsets.only(right: 20, left: 20, top: 10),
                     children: List.generate(
                       state.selectableCommands.length, 
                       (index) {
@@ -53,11 +58,14 @@ class _CommandsContainerState extends State<CommandsContainer> {
                     
                         return GestureDetector(
                           onTap: () => Provider.of<MainScreenState>(context, listen: false).insert(command),
-                          child: CommandTileBody(
-                            command: command,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: CommandTileBody(
+                              command: command,
+                            ),
                           ),
                         );
-                      }
+                      },
                     ),
                   ),
                 )

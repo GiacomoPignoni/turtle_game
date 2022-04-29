@@ -38,14 +38,6 @@ class _ResizableContainerState extends State<ResizableContainer> {
       height: _currentHeight,
       decoration: BoxDecoration(
         color: widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.3),
-            offset: Offset(0, 0),
-            blurRadius: 5,
-            spreadRadius: 1
-          )
-        ]
       ),
       child: Column(
         children: [
