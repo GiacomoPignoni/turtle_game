@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:turtle_game/app.dart';
 import 'package:turtle_game/extras/screen_utils.dart';
@@ -12,15 +14,17 @@ Future<void> main() async {
 }
 
 Future<void> setupWindow() async {
-  await windowManager.ensureInitialized();
-
-  WindowOptions windowOptions = WindowOptions(
-    minimumSize: const Size(ScreenUtils.MIN_HORIZONTAL_WIDTH + 20, ScreenUtils.MIN_HORIZONTAL_HEIGHT),
-    center: true,
-  );
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  if(Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    await windowManager.ensureInitialized();
+  
+    WindowOptions windowOptions = WindowOptions(
+      minimumSize: const Size(ScreenUtils.MIN_HORIZONTAL_WIDTH + 20, ScreenUtils.MIN_HORIZONTAL_HEIGHT),
+      center: true,
+    );
+  
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 }

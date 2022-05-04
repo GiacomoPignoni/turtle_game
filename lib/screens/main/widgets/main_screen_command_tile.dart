@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:turtle_game/models/command.dart';
-import 'package:turtle_game/screens/main/main_screen_state.dart';
-import 'package:turtle_game/widgets/button_icon.dart';
+import 'package:turtle_game/states/commands_state.dart';
 import 'package:turtle_game/widgets/conditional_wrapper.dart';
 
-class CommandTile extends StatelessWidget {
+class MainScreenCommandTile extends StatelessWidget {
   final Command command;
   final int index;
 
-  const CommandTile({
+  const MainScreenCommandTile({
     Key? key,
     required this.command,
     required this.index
@@ -22,7 +21,7 @@ class CommandTile extends StatelessWidget {
       child: CommandTileBody(
         command: command,
         showTrash: true,
-        onTapDelete: () => Provider.of<MainScreenState>(context, listen: false).remove(index),
+        onTapDelete: () => Provider.of<CommandsState>(context, listen: false).remove(index),
       )
     );
   }
@@ -45,46 +44,49 @@ class CommandTileBody extends StatelessWidget {
     return AnimatedBuilder(
       animation: command,
       builder: (context, child) {
-        return ConditionalWrapper(
-          condition: showTrash,
-          wrapperBuilder: (context, child) {
-            return Stack(
-              children: [
-                child,
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: CommandTileBodyDeleteIcon(
-                    onPressed: onTapDelete,
+        return SizedBox(
+          width: 300,
+          height: 50,
+          child: ConditionalWrapper(
+            condition: showTrash,
+            wrapperBuilder: (context, child) {
+              return Stack(
+                children: [
+                  child,
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CommandTileBodyDeleteIcon(
+                      onPressed: onTapDelete,
+                    )
                   )
-                )
-              ],
-            );
-          },
-          child: Container(
-            width: 300,
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: command.getColor(),
-              border: Border.all(color: Theme.of(context).dividerColor, width: Theme.of(context).dividerTheme.thickness!),
-              borderRadius: BorderRadius.circular(10)
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    command.toString(),
-                    style: Theme.of(context).textTheme.bodyText1,
+                ],
+              );
+            },
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: command.getColor(),
+                border: Border.all(color: Theme.of(context).dividerColor, width: Theme.of(context).dividerTheme.thickness!),
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      command.toString(),
+                      style: Theme.of(context).textTheme.bodyText1,
+                    )
+                  ),
+                  Expanded(
+                    child: Text(
+                      command.getValueToShow(),
+                      style: Theme.of(context).textTheme.bodyText1,
+                    )
                   )
-                ),
-                Expanded(
-                  child: Text(
-                    command.getValueToShow(),
-                    style: Theme.of(context).textTheme.bodyText1,
-                  )
-                )
-              ],
+                ],
+              ),
             ),
           ),
         );

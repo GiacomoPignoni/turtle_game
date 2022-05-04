@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:turtle_game/screens/main/main_screen_state.dart';
+import 'package:turtle_game/states/commands_state.dart';
 
 class TopBar extends StatelessWidget {
   const TopBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MainScreenState>(
+    return Consumer<CommandsState>(
       builder: (context, state, child) {
         return Container(
           height: 40,

@@ -13,7 +13,7 @@ enum MainScreenRunningState {
   finished
 }
 
-class MainScreenState extends ChangeNotifier {
+class CommandsState extends ChangeNotifier {
   final TurtleCanvasController turtleCanvasController = TurtleCanvasController();
 
   final selectableCommands = [

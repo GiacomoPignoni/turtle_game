@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:turtle_game/screens/main/widgets/command_tile.dart';
-import 'package:turtle_game/screens/main/main_screen_state.dart';
+import 'package:turtle_game/screens/main/widgets/main_screen_command_tile.dart';
+import 'package:turtle_game/states/commands_state.dart';
 import 'package:turtle_game/widgets/resizable_container.dart';
 
 class CommandsContainer extends StatefulWidget {
@@ -18,7 +18,7 @@ class _CommandsContainerState extends State<CommandsContainer> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {  
-        return Consumer<MainScreenState>(
+        return Consumer<CommandsState>(
           builder: (context, state, child) {
             return Column(
               children: [
@@ -34,7 +34,7 @@ class _CommandsContainerState extends State<CommandsContainer> {
                           itemBuilder: (context, index) => Padding(
                             key: ValueKey(state.commands[index].hashCode),
                             padding: const EdgeInsets.only(bottom: 5),
-                            child: CommandTile(
+                            child: MainScreenCommandTile(
                               index: index,
                               command: state.commands[index],
                             ),
@@ -57,7 +57,7 @@ class _CommandsContainerState extends State<CommandsContainer> {
                         final command = state.selectableCommands[index];
                     
                         return GestureDetector(
-                          onTap: () => Provider.of<MainScreenState>(context, listen: false).insert(command),
+                          onTap: () => Provider.of<CommandsState>(context, listen: false).insert(command),
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: CommandTileBody(
