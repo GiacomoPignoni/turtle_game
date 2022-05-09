@@ -8,7 +8,7 @@ class ResizableContainerConsts {
 
 class ResizableContainer extends StatefulWidget {
   final Widget child;
-  final double initalHeight;
+  final double initialHeight;
   final double maxHeight;
   final double minHeight;
   final Color? backgroundColor;
@@ -16,7 +16,7 @@ class ResizableContainer extends StatefulWidget {
 
   const ResizableContainer({
     required this.child,
-    required this.initalHeight,
+    required this.initialHeight,
     required this.maxHeight,
     required this.minHeight,
     this.toggleColor = Colors.black,
@@ -29,7 +29,7 @@ class ResizableContainer extends StatefulWidget {
 }
 
 class _ResizableContainerState extends State<ResizableContainer> {
-  late double _currentHeight = widget.initalHeight + ResizableContainerConsts.toggleContainerHeight;
+  late double _currentHeight = widget.initialHeight + ResizableContainerConsts.toggleContainerHeight;
   double _startDragY = 0;
 
   @override

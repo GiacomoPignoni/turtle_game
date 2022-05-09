@@ -25,29 +25,36 @@ class MainScreenCanvas extends StatelessWidget {
           );
         }
 
-        return Consumer<CanvasState>(
-          builder: (context, canvasState, child) {
-            return Stack(
-              children: [
-                Positioned(
+        return Stack(
+          clipBehavior: Clip.antiAlias,
+          alignment: Alignment.center,
+          children: [
+            Consumer<CanvasState>(
+              builder: (context, canvasState, child) {
+                return Positioned(
                   left: canvasState.position.dx,
                   top: canvasState.position.dy,
                   height: canvasState.size.height,
                   width: canvasState.size.width,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onPanUpdate: (details) => _onPanUpdate(details, canvasState),
-                      child: TurtleCanvas(
-                        controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
-                        alignment: Alignment.center,
+                  child: AnimatedScale(
+                    scale: canvasState.scale,
+                    duration: const Duration(milliseconds: 300),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onPanUpdate: (details) => _onPanUpdate(details, canvasState),
+                        onDoubleTap: () => canvasState.center(constraints),
+                        child: TurtleCanvas(
+                          controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
+                          alignment: Alignment.center,
+                        ),
                       ),
                     ),
                   ),
-                )
-              ],
-            );
-          }
+                );
+              }
+            )
+          ],
         );
       }
     );

@@ -4,14 +4,14 @@ import 'package:turtle_game/screens/main/widgets/main_screen_command_tile.dart';
 import 'package:turtle_game/states/commands_state.dart';
 import 'package:turtle_game/widgets/resizable_container.dart';
 
-class CommandsContainer extends StatefulWidget {
-  const CommandsContainer({Key? key}) : super(key: key);
+class MainScreenCommandsContainer extends StatefulWidget {
+  const MainScreenCommandsContainer({Key? key}) : super(key: key);
 
   @override
-  State<CommandsContainer> createState() => _CommandsContainerState();
+  State<MainScreenCommandsContainer> createState() => _MainScreenCommandsContainerState();
 }
 
-class _CommandsContainerState extends State<CommandsContainer> {
+class _MainScreenCommandsContainerState extends State<MainScreenCommandsContainer> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -45,7 +45,7 @@ class _CommandsContainerState extends State<CommandsContainer> {
                   )
                 ),
                 ResizableContainer(
-                  initalHeight: 120, 
+                  initialHeight: 135, 
                   maxHeight: constraints.maxHeight * 0.8, 
                   minHeight: 50,
                   toggleColor: Theme.of(context).dividerColor,

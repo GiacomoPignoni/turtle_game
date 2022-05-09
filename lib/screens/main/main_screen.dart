@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:turtle_game/screens/main/widgets/main_screen_bottom_bar.dart';
 import 'package:turtle_game/screens/main/widgets/main_screen_canvas.dart';
 import 'package:turtle_game/screens/main/widgets/main_screen_commands_container.dart';
 import 'package:turtle_game/states/commands_state.dart';
@@ -28,7 +29,7 @@ class MainScreen extends StatelessWidget {
               
                 return Column(
                   children: [
-                    const TopBar(),
+                    const MainScreenTopBar(),
                     Expanded(
                       child: Flex(
                         direction: isHorizontal ? Axis.horizontal : Axis.vertical,
@@ -47,12 +48,13 @@ class MainScreen extends StatelessWidget {
                             wrapperBuilder: (context, child) => Flexible(child: child),
                             child: ConstrainedBox(
                               constraints: isHorizontal ? const BoxConstraints(maxWidth: 300, minWidth: 300) : const BoxConstraints(),
-                              child: const CommandsContainer()
+                              child: const MainScreenCommandsContainer()
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const MainScreenBottomBar()
                   ],
                 );
               },

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class CanvasState extends ChangeNotifier {
@@ -28,6 +29,20 @@ class CanvasState extends ChangeNotifier {
   changePositionAndSizeWithoutNotify(double width, double height, double x, double y) {
     _updateSize(width, height);
     _updatePosition(x, y);
+  }
+
+  center(BoxConstraints constraints) {
+    final x = (constraints.maxWidth - _size.width) / 2;
+    final y = (constraints.maxHeight - _size.height) / 2;
+    changePosition(x, y);
+  }
+
+  zoomIn() {
+    changeScale(_scale + 0.1);
+  }
+
+  zoomOut() {
+    changeScale(min(_scale - 0.1, 0));
   }
 
   _updateSize(double width, double height) {
