@@ -16,7 +16,7 @@ class TurtleCanvasController {
     turtlePosition: const Offset(0, 0)
   ));
   
-  init(TickerProvider tickerProvider) {
+  void init(TickerProvider tickerProvider) {
     if(_inizialized == false) {
       animationController = AnimationController(
         vsync: tickerProvider,
@@ -56,7 +56,7 @@ class TurtleCanvasController {
     await _animationCompleted.stream.first;
   }
 
-  clear({
+  void clear({
     required double turtleAngle,
     required Offset turtlePosition 
   }) {
@@ -69,7 +69,7 @@ class TurtleCanvasController {
     );
   }
 
-  pauseAnimation() {
+  void pauseAnimation() {
     animationController.stop();
   }
 
@@ -78,7 +78,7 @@ class TurtleCanvasController {
     await _animationCompleted.stream.first;
   }
 
-  dispose() {
+  void dispose() {
     animationController.dispose();
     _animationCompleted.close();
   }

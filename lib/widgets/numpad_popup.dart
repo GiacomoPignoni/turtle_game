@@ -4,10 +4,12 @@ import 'package:turtle_game/extras/extensions.dart';
 import 'package:turtle_game/widgets/button_icon.dart';
 
 class NumpadPopupButton extends StatefulWidget {
+  final bool disableComma;
   final Function(BuildContext context, Future<double?> Function(double initialValue, { bool showFullScreen }) showPopup) builder;
 
   const NumpadPopupButton({
     required this.builder,
+    this.disableComma = false,
     Key? key
   }) : super(key: key);
 
@@ -40,7 +42,8 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
       parentSize: button.size,
-      showFullScreen: showFullScreen
+      showFullScreen: showFullScreen,
+      disableComma: widget.disableComma
     ));
   }
 }
@@ -51,12 +54,14 @@ class _NumpadPopup extends StatelessWidget {
 
   final _NumpadPopupRoute route;
   final bool showFullScreen;
+  final bool disableComma;
 
   late final ValueNotifier<String> _currentValue;
 
   _NumpadPopup({
     required this.route,
     required this.showFullScreen,
+    required this.disableComma,
     required double initialValue
   }) {
     _currentValue = ValueNotifier(initialValue.toStringWihtoutTrailingZeros());
@@ -161,14 +166,17 @@ class _NumpadPopup extends StatelessWidget {
             ),
             _NumpadPopupButtonsRow(
               buttonsData: [
-                _NumpadPopupButtonsData(
-                  text: ".",
-                  onPressed: () {
-                    if(_currentValue.value.contains(".") == false) {
-                      _currentValue.value += ".";
+                if(disableComma)
+                  const _NumpadPopupButtonsData(),
+                if(disableComma == false)
+                  _NumpadPopupButtonsData(
+                    text: ".",
+                    onPressed: () {
+                      if(_currentValue.value.contains(".") == false) {
+                        _currentValue.value += ".";
+                      }
                     }
-                  }
-                ),
+                  ),
                 _NumpadPopupButtonsData(
                   text: "0",
                   onPressed: () => _currentValue.value += "0"
@@ -344,6 +352,7 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
   final double initialValue;
   final Size parentSize;
   final bool showFullScreen;
+  final bool disableComma;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 400);
@@ -363,7 +372,8 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
     required this.capturedThemes,
     required this.initialValue,
     required this.parentSize,
-    required this.showFullScreen
+    required this.showFullScreen,
+    required this.disableComma
   });
 
   @override
@@ -398,6 +408,7 @@ class _NumpadPopupRoute<T> extends PopupRoute<T> {
               route: this,
               initialValue: initialValue,
               showFullScreen: showFullScreen,
+              disableComma: disableComma,
             )),
           );
         },

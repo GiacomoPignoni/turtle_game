@@ -5,12 +5,14 @@ class ChipButton extends StatefulWidget {
   final IconData icon;
   final String tooltipText;
   final bool disabled;
+  final double iconSize;
 
   const ChipButton({
     Key? key,
     required this.onPressed,
     required this.icon,
     required this.tooltipText,
+    this.iconSize = 20,
     this.disabled = false,
   }) : super(key: key);
 
@@ -24,6 +26,8 @@ class _ChipButtonState extends State<ChipButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return MouseRegion(
       cursor: (widget.disabled) ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
       onHover: (_) => setState(() {
@@ -39,16 +43,19 @@ class _ChipButtonState extends State<ChipButton> {
         onTapCancel: widget.disabled ? null : () => setState(() => _isDown = false),
         child: RepaintBoundary(
           child: AnimatedContainer(
+            height: widget.iconSize + 10,
+            constraints: const BoxConstraints(minHeight: 15, minWidth: 40),
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: _calculateBackgroundColor(), 
+              color: _calculateBackgroundColor(theme), 
               borderRadius: BorderRadius.circular(5)
             ),
             child: Icon(
               widget.icon,
-              color: (widget.disabled) ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.onPrimary,
+              size: widget.iconSize,
+              color: (widget.disabled) ? theme.colorScheme.onSecondary.withOpacity(0.5) : theme.colorScheme.onSecondary,
             ),
           ),
         ),
@@ -56,17 +63,19 @@ class _ChipButtonState extends State<ChipButton> {
     );
   }
 
-  _calculateBackgroundColor() {
+  Color _calculateBackgroundColor(ThemeData theme) {
     if(widget.disabled) {
       return Colors.transparent;
     }
 
     if(_isDown) {
-      return const Color.fromRGBO(0, 0, 0, 0.4);
+      final hslColor = HSLColor.fromColor(theme.colorScheme.secondary);
+      return hslColor.withLightness((hslColor.lightness - 0.2).clamp(0.0, 1.0)).toColor();
     } else if(_isHover) {
-      return const Color.fromRGBO(0, 0, 0, 0.2);
+      final hslColor = HSLColor.fromColor(theme.colorScheme.secondary);
+      return hslColor.withLightness((hslColor.lightness - 0.1).clamp(0.0, 1.0)).toColor();
     }
 
-    return Colors.transparent;
+    return theme.colorScheme.secondary;
   }
 }

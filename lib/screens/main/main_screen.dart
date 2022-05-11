@@ -60,12 +60,6 @@ class MainScreen extends StatelessWidget {
               },
             )
           ),
-          floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.smartphone_rounded),
-            onPressed: () {
-              ScreenUtils.toggleSmartphoneView();
-            },
-          ),
         );
       }
     );

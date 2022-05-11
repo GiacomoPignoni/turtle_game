@@ -14,15 +14,12 @@ class MainScreenCanvas extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final canvasState = Provider.of<CanvasState>(context, listen: false);
         if(firstBuild) {
           firstBuild = false;
-          final canvasState = Provider.of<CanvasState>(context, listen: false);
-          canvasState.changePositionAndSizeWithoutNotify(
-            constraints.maxWidth, 
-            constraints.maxHeight,
-            0, 
-            0
-          );
+          canvasState.onFirstBuild(constraints);
+        } else {
+          canvasState.onConstraintsChanged(constraints);
         }
 
         return Stack(
@@ -38,15 +35,21 @@ class MainScreenCanvas extends StatelessWidget {
                   width: canvasState.size.width,
                   child: AnimatedScale(
                     scale: canvasState.scale,
-                    duration: const Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 200),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         onPanUpdate: (details) => _onPanUpdate(details, canvasState),
                         onDoubleTap: () => canvasState.center(constraints),
-                        child: TurtleCanvas(
-                          controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
-                          alignment: Alignment.center,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: (canvasState.scale != 1 || canvasState.isCentered == false) ? Border.all(color: Theme.of(context).dividerColor, width: 2) : null,
+                          ),
+                          child: TurtleCanvas(
+                            controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
+                            alignment: Alignment.center,
+                          ),
                         ),
                       ),
                     ),
@@ -61,9 +64,9 @@ class MainScreenCanvas extends StatelessWidget {
   }
 
   _onPanUpdate(DragUpdateDetails details, CanvasState canvasState) {
-    canvasState.changePosition(
+    canvasState.changePosition(Offset(
       canvasState.position.dx + details.delta.dx, 
       canvasState.position.dy + details.delta.dy, 
-    );
+    ));
   }
 }

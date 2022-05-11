@@ -11,55 +11,77 @@ class CanvasState extends ChangeNotifier {
   double _scale = 1;
   double get scale => _scale;
 
-  changeSize(double width, double height) {
+  bool _isCentered = true;
+  bool get isCentered => _isCentered;
+
+  void changeSize(double width, double height) {
     _updateSize(width, height);
     notifyListeners();
   }
 
-  changePosition(double x, double y) {
-    _updatePosition(x, y);
+  void changePosition(Offset newPosition) {
+    _updatePosition(newPosition);
+    _isCentered = false;
     notifyListeners();
   }
 
-  changeScale(double newScale) {
+  void changeScale(double newScale) {
     _updateScale(newScale);
     notifyListeners();
   }
 
-  changePositionAndSizeWithoutNotify(double width, double height, double x, double y) {
-    _updateSize(width, height);
-    _updatePosition(x, y);
+  void onFirstBuild(BoxConstraints constraints) {
+    _updateSize(constraints.maxWidth, constraints.maxHeight);
+    _updatePosition(Offset.zero);
   }
 
-  center(BoxConstraints constraints) {
-    final x = (constraints.maxWidth - _size.width) / 2;
-    final y = (constraints.maxHeight - _size.height) / 2;
-    changePosition(x, y);
+  void onConstraintsChanged(BoxConstraints constraints) {
+    if(_scale == 1 && _isCentered) {
+      _updateSize(constraints.maxWidth, constraints.maxHeight);
+    }
   }
 
-  zoomIn() {
+  void center(BoxConstraints constraints) {
+    final centerPosition = _calculateCenterPosition(constraints);
+    _isCentered = true;
+    _updatePosition(centerPosition);
+    notifyListeners();
+  }
+
+  void zoomIn() {
     changeScale(_scale + 0.1);
   }
 
-  zoomOut() {
-    changeScale(min(_scale - 0.1, 0));
+  void zoomOut() {
+    changeScale(_scale - 0.1);
   }
 
-  _updateSize(double width, double height) {
+  void _updateSize(double width, double height) {
     _size = Size(width, height);
     debugPrint("### CANVAS -> NEW POSITION ###");
     debugPrint(_size.toString());
   }
 
-  _updatePosition(double x, double y) {
-    _position = Offset(x, y);
+  void _updatePosition(Offset newPostion) {
+    _position = newPostion;
     debugPrint("### CANVAS -> NEW POSITION ###");
     debugPrint(_position.toString());
   }
 
-  _updateScale(double newScale) {
-    _scale = newScale;
+  void _updateScale(double newScale) {
+    // This is a workaround for Stack that it doesn't clip something if the position is exactly 0,0
+    if(_position == Offset.zero) {
+      _updatePosition(const Offset(0.000000000001, 0.000000000001));
+    }
+
+    _scale = max(newScale, 0.1);
     debugPrint("### CANVAS -> NEW SCALE ###");
     debugPrint(_scale.toString());
+  }
+
+  Offset _calculateCenterPosition(BoxConstraints constraints) {
+    final x = (constraints.maxWidth - _size.width) / 2;
+    final y = (constraints.maxHeight - _size.height) / 2;
+    return Offset(x, y);
   }
 }

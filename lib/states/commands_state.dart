@@ -37,7 +37,7 @@ class CommandsState extends ChangeNotifier {
   int _currentCommandIndex = -1;
   CancelableOperation<void>? _commandCancellableOperation;
 
-  reorder(int oldIndex, int newIndex) {
+  void reorder(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
@@ -46,12 +46,12 @@ class CommandsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  insert(Command command, {int? index}) {
+  void insert(Command command, {int? index}) {
     commands.insert(index ?? commands.length, command.copy());
     notifyListeners();
   }
 
-  remove(int index) {
+  void remove(int index) {
     commands.removeAt(index);
     notifyListeners();
   }
@@ -81,7 +81,7 @@ class CommandsState extends ChangeNotifier {
     }
   }
 
-  pause() {
+  void pause() {
     if(runningState == MainScreenRunningState.running) {
       turtleCanvasController.pauseAnimation();
       _commandCancellableOperation?.cancel();
@@ -90,7 +90,7 @@ class CommandsState extends ChangeNotifier {
     }
   }
 
-  stop() {
+  void stop() {
     if(runningState != MainScreenRunningState.start) {
       _reset();
       _commandCancellableOperation?.cancel();
@@ -114,13 +114,13 @@ class CommandsState extends ChangeNotifier {
     }
   }
 
-  reset() {
+  void reset() {
     _reset();
     runningState = MainScreenRunningState.start;
     notifyListeners();
   }
 
-  _reset() {
+  void _reset() {
     _currentCommandIndex = -1;
     _drawedPath = Path();
     _currentTurtleAngle = 0;
