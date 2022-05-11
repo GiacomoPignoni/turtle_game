@@ -36,7 +36,7 @@ class MainScreenBottomBar extends StatelessWidget {
                     style: theme.textTheme.bodyText1,
                   ),
                   onTap: () {
-                    showPopup((canvasState.scale * 100).round().toDouble()).then((newValue){
+                    showPopup((canvasState.scale * 100).roundToDouble()).then((newValue){
                       if(newValue != null) {
                         canvasState.changeScale(newValue / 100);
                       }

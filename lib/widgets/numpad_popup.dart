@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:turtle_game/extras/extensions.dart';
 import 'package:turtle_game/widgets/button_icon.dart';
 
@@ -49,31 +52,56 @@ class _NumpadPopupButtonState extends State<NumpadPopupButton> {
 }
 
 
-class _NumpadPopup extends StatelessWidget {
-  final double _borderRadiusValue = 20;
-
+class _NumpadPopup extends StatefulWidget {
   final _NumpadPopupRoute route;
   final bool showFullScreen;
   final bool disableComma;
+  final double initialValue;
 
-  late final ValueNotifier<String> _currentValue;
-
-  _NumpadPopup({
+  const _NumpadPopup({
     required this.route,
     required this.showFullScreen,
     required this.disableComma,
-    required double initialValue
-  }) {
-    _currentValue = ValueNotifier(initialValue.toStringWihtoutTrailingZeros());
+    required this.initialValue
+  });
+
+  @override
+  State<_NumpadPopup> createState() => _NumpadPopupState();
+}
+
+class _NumpadPopupState extends State<_NumpadPopup> {
+  final _textEditingController = TextEditingController();
+  final _focusNode = FocusNode();
+
+  final double _borderRadiusValue = 20;
+
+  @override
+  void initState() {
+    _textEditingController.text = widget.initialValue.toStringWihtoutTrailingZeros();
+    
+    if(PlatformExtenstion.isTouchDevice() == false) {
+      _focusNode.requestFocus();
+    }
+    super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _textEditingController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) { 
+    final theme = Theme.of(context);
+    final isTouchDevice = PlatformExtenstion.isTouchDevice();
+
     return ScaleTransition(
-      scale: route.animation!,
+      scale: widget.route.animation!,
       child: Container(
-        width: showFullScreen ? null : 200,
-        height: showFullScreen ? null : 300,
+        width: widget.showFullScreen ? null : 200,
+        height: widget.showFullScreen ? null : (isTouchDevice) ? 300 : 100,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_borderRadiusValue),
@@ -84,124 +112,132 @@ class _NumpadPopup extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ValueListenableBuilder<String>(
-                  valueListenable: _currentValue,
-                  builder: (context, currentValue, child) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: AutoSizeText(
-                            currentValue,
-                            maxLines: 1,
-                            style: const TextStyle(
-                              fontSize: 40
-                            ),
-                          ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: EditableText(
+                        controller: _textEditingController,
+                        cursorColor: theme.textSelectionTheme.cursorColor ?? Colors.black,
+                        focusNode: _focusNode,
+                        backgroundCursorColor: Colors.green,
+                        maxLines: 1, 
+                        style: theme.textTheme.bodyText2!.copyWith(
+                          fontSize: 40
                         ),
-                        Visibility(
-                          visible: currentValue.isNotEmpty,
-                          child: ButtonIcon(
-                            icon: const Icon(Icons.backspace_rounded), 
-                            onPressed: () {
-                              if(currentValue.isNotEmpty) {
-                                _currentValue.value = currentValue.substring(0, currentValue.length - 1);
-                              }
-                            }
-                          ),
-                        )
-                      ],
-                    );
-                  }
-                ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(',', replacementString: '.'),
+                          FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d{0,2})')),
+                        ],
+                        onSubmitted: (_) => _onConfirm(),                    
+                      )
+                    ),
+                    Visibility(
+                      visible: isTouchDevice && _textEditingController.text.isNotEmpty,
+                      child: ButtonIcon(
+                        icon: const Icon(Icons.backspace_rounded), 
+                        onPressed: () {
+                          if(_textEditingController.text.isNotEmpty) {
+                            _textEditingController.text = _textEditingController.text.substring(0, _textEditingController.text.length - 1);
+                          }
+                        }
+                      ),
+                    )
+                  ],
+                )
               )
             ),
-            _NumpadPopupButtonsRow(
-              firstRow: true,
-              buttonsData: [
-                _NumpadPopupButtonsData(
-                  text: "1",
-                  onPressed: () => _currentValue.value += "1"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "2",
-                  onPressed: () => _currentValue.value += "2"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "3",
-                  onPressed: () => _currentValue.value += "3"
-                )
-              ],
-            ),
-            _NumpadPopupButtonsRow(
-              buttonsData: [
-                _NumpadPopupButtonsData(
-                  text: "4",
-                  onPressed: () => _currentValue.value += "4"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "5",
-                  onPressed: () => _currentValue.value += "5"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "6",
-                  onPressed: () => _currentValue.value += "6"
-                )
-              ],
-            ),
-            _NumpadPopupButtonsRow(
-              buttonsData: [
-                _NumpadPopupButtonsData(
-                  text: "7",
-                  onPressed: () => _currentValue.value += "7"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "8",
-                  onPressed: () => _currentValue.value += "8"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "9",
-                  onPressed: () => _currentValue.value += "9"
-                )
-              ],
-            ),
-            _NumpadPopupButtonsRow(
-              buttonsData: [
-                if(disableComma)
-                  const _NumpadPopupButtonsData(),
-                if(disableComma == false)
+            if(isTouchDevice)
+              _NumpadPopupButtonsRow(
+                firstRow: true,
+                buttonsData: [
                   _NumpadPopupButtonsData(
-                    text: ".",
+                    text: "1",
+                    onPressed: () => _textEditingController.text += "1"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "2",
+                    onPressed: () => _textEditingController.text += "2"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "3",
+                    onPressed: () => _textEditingController.text += "3"
+                  )
+                ],
+              ),
+            if(isTouchDevice)
+              _NumpadPopupButtonsRow(
+                buttonsData: [
+                  _NumpadPopupButtonsData(
+                    text: "4",
+                    onPressed: () => _textEditingController.text += "4"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "5",
+                    onPressed: () => _textEditingController.text += "5"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "6",
+                    onPressed: () => _textEditingController.text += "6"
+                  )
+                ],
+              ),
+            if(isTouchDevice)
+              _NumpadPopupButtonsRow(
+                buttonsData: [
+                  _NumpadPopupButtonsData(
+                    text: "7",
+                    onPressed: () => _textEditingController.text += "7"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "8",
+                    onPressed: () => _textEditingController.text += "8"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "9",
+                    onPressed: () => _textEditingController.text += "9"
+                  )
+                ],
+              ),
+            if(isTouchDevice)
+              _NumpadPopupButtonsRow(
+                buttonsData: [
+                  if(widget.disableComma)
+                    const _NumpadPopupButtonsData(),
+                  if(widget.disableComma == false)
+                    _NumpadPopupButtonsData(
+                      text: ".",
+                      onPressed: () {
+                        if(_textEditingController.text.contains(".") == false) {
+                          _textEditingController.text += ".";
+                        }
+                      }
+                    ),
+                  _NumpadPopupButtonsData(
+                    text: "0",
+                    onPressed: () => _textEditingController.text += "0"
+                  ),
+                  _NumpadPopupButtonsData(
+                    text: "+/-",
                     onPressed: () {
-                      if(_currentValue.value.contains(".") == false) {
-                        _currentValue.value += ".";
+                      final currentSign = _textEditingController.text[0];
+
+                      switch(currentSign) {                    
+                        case "-":
+                          _textEditingController.text = "+" + _textEditingController.text.substring(1);
+                          break;
+                        case "+":
+                          _textEditingController.text = "-" + _textEditingController.text.substring(1);
+                          break;
+                        default:
+                          _textEditingController.text = "-" + _textEditingController.text;
                       }
                     }
-                  ),
-                _NumpadPopupButtonsData(
-                  text: "0",
-                  onPressed: () => _currentValue.value += "0"
-                ),
-                _NumpadPopupButtonsData(
-                  text: "+/-",
-                  onPressed: () {
-                    final currentSign = _currentValue.value[0];
-
-                    switch(currentSign) {                    
-                      case "-":
-                        _currentValue.value = "+" + _currentValue.value.substring(1);
-                        break;
-                      case "+":
-                        _currentValue.value = "-" + _currentValue.value.substring(1);
-                        break;
-                      default:
-                        _currentValue.value = "-" + _currentValue.value;
-                    }
-                  }
-                )
-              ],
-            ),
+                  )
+                ],
+              ),
             _NumpadPopupButtonsRow(
               lastRow: true,
+              firstRow: isTouchDevice == false,
               borderRadius: _borderRadiusValue,
               buttonsData: [
                 _NumpadPopupButtonsData(
@@ -211,10 +247,7 @@ class _NumpadPopup extends StatelessWidget {
                 const _NumpadPopupButtonsData(),
                 _NumpadPopupButtonsData(
                   child: const Icon(Icons.check_rounded),
-                  onPressed: () {
-                    final newValue = double.tryParse(_currentValue.value);
-                    Navigator.of(context).pop(newValue);
-                  }
+                  onPressed: _onConfirm
                 )
               ],
             ),
@@ -222,6 +255,11 @@ class _NumpadPopup extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onConfirm() {
+    final newValue = double.tryParse(_textEditingController.text);
+    Navigator.of(context).pop(newValue);
   }
 }
 
