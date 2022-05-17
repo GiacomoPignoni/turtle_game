@@ -8,14 +8,16 @@ class MainScreenTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Consumer<CommandsState>(
       builder: (context, state, child) {
         return Container(
           height: 40,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor, width: 2))
+            color: theme.colorScheme.primary,
+            border: Border(bottom: BorderSide(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!))
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,

@@ -14,8 +14,8 @@ class CanvasState extends ChangeNotifier {
   bool _isCentered = true;
   bool get isCentered => _isCentered;
 
-  void changeSize(double width, double height) {
-    _updateSize(width, height);
+  void changeSize({double? width, double? height}) {
+    _updateSize(width ?? size.width, height ?? size.height);
     notifyListeners();
   }
 

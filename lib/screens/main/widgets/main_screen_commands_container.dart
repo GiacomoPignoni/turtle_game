@@ -48,7 +48,7 @@ class _MainScreenCommandsContainerState extends State<MainScreenCommandsContaine
                   initialHeight: 135, 
                   maxHeight: constraints.maxHeight * 0.8, 
                   minHeight: 50,
-                  toggleColor: Theme.of(context).dividerColor,
+                  toggleColor: Theme.of(context).dividerTheme.color!,
                   child: ListView(
                     padding: const EdgeInsets.only(right: 20, left: 20, top: 10),
                     children: List.generate(

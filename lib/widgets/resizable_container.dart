@@ -34,10 +34,12 @@ class _ResizableContainerState extends State<ResizableContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: _currentHeight,
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        color: widget.backgroundColor ?? theme.scaffoldBackgroundColor,
       ),
       child: Column(
         children: [
@@ -52,7 +54,7 @@ class _ResizableContainerState extends State<ResizableContainer> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      height: 2,
+                      height: 1,
                       color: widget.toggleColor,
                     ),
                     Padding(

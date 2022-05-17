@@ -40,9 +40,9 @@ class MainScreen extends StatelessWidget {
                             child: const MainScreenCanvas()
                           ),
                           if (isHorizontal) 
-                            const VerticalDivider(width: 2, thickness: 2)
+                            const VerticalDivider()
                           else 
-                            const Divider(height: 2, thickness: 2),
+                            const Divider(),
                           ConditionalWrapper(
                             condition: isHorizontal == false,
                             wrapperBuilder: (context, child) => Flexible(child: child),

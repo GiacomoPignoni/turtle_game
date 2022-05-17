@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color eeireBlack = Color(0xFF252627);
 const Color lightGray = Color(0xFFD3D4D9);
+const Color gray = Color(0xFFC2D3CD);
 const Color snow = Color(0xFFFFF9FB);
 const Color fireBrick = Color(0xFFBB0A21);
 const Color blueMunsell = Color(0xFF4B88A2);
@@ -22,14 +23,15 @@ final theme = ThemeData(
       fontWeight: FontWeight.normal
     )
   ),
-  dividerColor: eeireBlack,
   backgroundColor: snow,
   scaffoldBackgroundColor: snow,
   primaryColorLight: snow,
   primaryColorDark: eeireBlack,
+  shadowColor: gray,
   dividerTheme: const DividerThemeData(
     color: eeireBlack,
-    thickness: 2
+    thickness: 1,
+    space: 1
   ),
   colorScheme: const ColorScheme(
     brightness: Brightness.light,

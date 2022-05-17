@@ -41,6 +41,8 @@ class CommandTileBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return AnimatedBuilder(
       animation: command,
       builder: (context, child) {
@@ -68,7 +70,7 @@ class CommandTileBody extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: command.getColor(),
-                border: Border.all(color: Theme.of(context).dividerColor, width: Theme.of(context).dividerTheme.thickness!),
+                border: Border.all(color:theme.dividerTheme.color!.withOpacity(0.2), width: theme.dividerTheme.thickness!),
                 borderRadius: BorderRadius.circular(10)
               ),
               child: Row(
@@ -76,13 +78,13 @@ class CommandTileBody extends StatelessWidget {
                   Expanded(
                     child: Text(
                       command.toString(),
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: theme.textTheme.bodyText1,
                     )
                   ),
                   Expanded(
                     child: Text(
                       command.getValueToShow(),
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: theme.textTheme.bodyText1,
                     )
                   )
                 ],
@@ -113,6 +115,8 @@ class _CommandTileBodyDeleteIconState extends State<CommandTileBodyDeleteIcon> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onHover: (_) => setState(() {_isHover = true;}),
@@ -127,7 +131,7 @@ class _CommandTileBodyDeleteIconState extends State<CommandTileBodyDeleteIcon> {
           height: 25,
           width: 25,
           decoration: BoxDecoration(
-            color: (_isHover) ? Theme.of(context).primaryColorDark.withOpacity(0.8) : Theme.of(context).primaryColorDark,
+            color: (_isHover) ? theme.primaryColorDark.withOpacity(0.8) : theme.primaryColorDark,
             borderRadius: const BorderRadius.only(
               topRight: Radius.circular(10),
               bottomLeft: Radius.circular(10)
@@ -138,7 +142,7 @@ class _CommandTileBodyDeleteIconState extends State<CommandTileBodyDeleteIcon> {
             duration: const Duration(milliseconds: 100),
             child: Icon(
               Icons.close_rounded,
-              color: Theme.of(context).primaryColorLight, 
+              color: theme.primaryColorLight, 
               size: 14
             ),
           ),

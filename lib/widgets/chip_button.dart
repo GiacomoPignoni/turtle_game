@@ -50,7 +50,8 @@ class _ChipButtonState extends State<ChipButton> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: _calculateBackgroundColor(theme), 
-              borderRadius: BorderRadius.circular(5)
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: theme.dividerTheme.color!.withOpacity(0.2), width: theme.dividerTheme.thickness!)
             ),
             child: Icon(
               widget.icon,

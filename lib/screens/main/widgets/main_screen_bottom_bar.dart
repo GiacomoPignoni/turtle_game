@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:turtle_game/extras/extensions.dart';
 import 'package:turtle_game/states/canvas_state.dart';
 import 'package:turtle_game/widgets/chip_button.dart';
 import 'package:turtle_game/widgets/numpad_popup.dart';
@@ -12,22 +13,62 @@ class MainScreenBottomBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      height: 40,
+      height: PlatformExtenstion.isTouchDevice() ? 20 : 40,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: theme.colorScheme.primary,
-        border: Border(top: BorderSide(color: theme.dividerColor, width: 2))
+        border: Border(top: BorderSide(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!))
       ),
       child: Consumer<CanvasState>(
         builder: (context, canvasState, child) {
           return Row(
             children: [
-              ChipButton(
-                icon: Icons.add_rounded,
-                tooltipText: "Zoom In",
-                onPressed: () => canvasState.zoomIn(),
+              NumpadPopupButton(
+                disableComma: true,
+                builder: (context, showPopup) => GestureDetector(
+                  child: Text(
+                    "${canvasState.size.width.toInt()}",
+                    style: theme.textTheme.bodyText1,
+                  ),
+                  onTap: () {
+                    showPopup(canvasState.size.width).then((newValue){
+                      if(newValue != null) {
+                        canvasState.changeSize(width: newValue);
+                      }
+                    });
+                  },
+                ),
               ),
-              const SizedBox(width: 10),
+              Text(
+                " x ",
+                style: theme.textTheme.bodyText1,
+              ),
+              NumpadPopupButton(
+                disableComma: true,
+                builder: (context, showPopup) => GestureDetector(
+                  child: Text(
+                    "${canvasState.size.height.toInt()}",
+                    style: theme.textTheme.bodyText1,
+                  ),
+                  onTap: () {
+                    showPopup(canvasState.size.height).then((newValue){
+                      if(newValue != null) {
+                        canvasState.changeSize(height: newValue);
+                      }
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 20),
+              if(PlatformExtenstion.isTouchDevice() == false)
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: ChipButton(
+                    icon: Icons.add_rounded,
+                    tooltipText: "Zoom In",
+                    onPressed: () => canvasState.zoomIn(),
+                  ),
+                ),
               NumpadPopupButton(
                 disableComma: true,
                 builder: (context, showPopup) => GestureDetector(
@@ -44,12 +85,15 @@ class MainScreenBottomBar extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 10),
-              ChipButton(
-                icon: Icons.remove_rounded,
-                tooltipText: "Zoom Out",
-                onPressed: () => canvasState.zoomOut(),
-              )
+              if(PlatformExtenstion.isTouchDevice() == false)
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: ChipButton(
+                    icon: Icons.remove_rounded,
+                    tooltipText: "Zoom Out",
+                    onPressed: () => canvasState.zoomOut(),
+                  ),
+                )
             ],
           );
         }

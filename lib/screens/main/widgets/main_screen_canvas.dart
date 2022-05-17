@@ -11,6 +11,7 @@ class MainScreenCanvas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool firstBuild = true;
+    final theme = Theme.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -22,42 +23,45 @@ class MainScreenCanvas extends StatelessWidget {
           canvasState.onConstraintsChanged(constraints);
         }
 
-        return Stack(
-          clipBehavior: Clip.antiAlias,
-          alignment: Alignment.center,
-          children: [
-            Consumer<CanvasState>(
-              builder: (context, canvasState, child) {
-                return Positioned(
-                  left: canvasState.position.dx,
-                  top: canvasState.position.dy,
-                  height: canvasState.size.height,
-                  width: canvasState.size.width,
-                  child: AnimatedScale(
-                    scale: canvasState.scale,
-                    duration: const Duration(milliseconds: 200),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onPanUpdate: (details) => _onPanUpdate(details, canvasState),
-                        onDoubleTap: () => canvasState.center(constraints),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            border: (canvasState.scale != 1 || canvasState.isCentered == false) ? Border.all(color: Theme.of(context).dividerColor, width: 2) : null,
-                          ),
-                          child: TurtleCanvas(
-                            controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
-                            alignment: Alignment.center,
+        return Container(
+          color: theme.shadowColor,
+          child: Stack(
+            clipBehavior: Clip.antiAlias,
+            alignment: Alignment.center,
+            children: [
+              Consumer<CanvasState>(
+                builder: (context, canvasState, child) {
+                  return Positioned(
+                    left: canvasState.position.dx,
+                    top: canvasState.position.dy,
+                    height: canvasState.size.height,
+                    width: canvasState.size.width,
+                    child: AnimatedScale(
+                      scale: canvasState.scale,
+                      duration: const Duration(milliseconds: 200),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onPanUpdate: (details) => _onPanUpdate(details, canvasState),
+                          onDoubleTap: () => canvasState.center(constraints),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: (canvasState.scale != 1 || canvasState.isCentered == false) ? Border.all(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!) : null,
+                            ),
+                            child: TurtleCanvas(
+                              controller: Provider.of<CommandsState>(context, listen: false).turtleCanvasController,
+                              alignment: Alignment.center,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }
-            )
-          ],
+                  );
+                }
+              )
+            ],
+          ),
         );
       }
     );
