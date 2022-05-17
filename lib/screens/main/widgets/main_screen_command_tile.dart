@@ -21,6 +21,7 @@ class MainScreenCommandTile extends StatelessWidget {
       child: CommandTileBody(
         command: command,
         showTrash: true,
+        hideTopCurve: index == 0,
         onTapDelete: () => Provider.of<CommandsState>(context, listen: false).remove(index),
       )
     );
@@ -31,10 +32,12 @@ class CommandTileBody extends StatelessWidget {
   final Command command;
   final bool showTrash;
   final Function()? onTapDelete;
+  final bool hideTopCurve;
 
   const CommandTileBody({
     Key? key,
     required this.command,
+    this.hideTopCurve = false,
     this.showTrash = false,
     this.onTapDelete
   }) : super(key: key);
@@ -46,48 +49,51 @@ class CommandTileBody extends StatelessWidget {
     return AnimatedBuilder(
       animation: command,
       builder: (context, child) {
-        return SizedBox(
-          width: 300,
-          height: 50,
-          child: ConditionalWrapper(
-            condition: showTrash,
-            wrapperBuilder: (context, child) {
-              return Stack(
-                children: [
-                  child,
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: CommandTileBodyDeleteIcon(
-                      onPressed: onTapDelete,
-                    )
+        return ConditionalWrapper(
+          condition: showTrash,
+          wrapperBuilder: (context, child) {
+            return Stack(
+              children: [
+                child,
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: CommandTileBodyDeleteIcon(
+                    onPressed: onTapDelete,
                   )
-                ],
-              );
-            },
-            child: Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
+                )
+              ],
+            );
+          },
+          child: SizedBox(
+            width: 300,
+            height: 50,
+            child: CustomPaint(
+              painter: CommandTileBodyCustomPainter(
+                borderRadius: 10,
+                curveMarginPercentage: 0.25,
                 color: command.getColor(),
-                border: Border.all(color:theme.dividerTheme.color!.withOpacity(0.2), width: theme.dividerTheme.thickness!),
-                borderRadius: BorderRadius.circular(10)
+                borderColor: theme.dividerTheme.color!.withOpacity(0.5),
+                hideTopCurve: hideTopCurve
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      command.toString(),
-                      style: theme.textTheme.bodyText1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        command.toString(),
+                        style: theme.textTheme.bodyText1,
+                      )
+                    ),
+                    Expanded(
+                      child: Text(
+                        command.getValueToShow(),
+                        style: theme.textTheme.bodyText1,
+                      )
                     )
-                  ),
-                  Expanded(
-                    child: Text(
-                      command.getValueToShow(),
-                      style: theme.textTheme.bodyText1,
-                    )
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -150,4 +156,68 @@ class _CommandTileBodyDeleteIconState extends State<CommandTileBodyDeleteIcon> {
       ),
     );
   }
+}
+
+class CommandTileBodyCustomPainter extends CustomPainter {
+  final double borderRadius;
+  final double curveMarginPercentage;
+  final Color color;
+  final Color borderColor;
+  final bool hideTopCurve;
+
+  CommandTileBodyCustomPainter({
+    required this.borderRadius,
+    required this.curveMarginPercentage,
+    required this.color,
+    required this.borderColor,
+    required this.hideTopCurve
+  });
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final curveMargin = size.width * curveMarginPercentage;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 1
+      ..isAntiAlias = true;
+
+    final path = Path();
+    path.fillType = PathFillType.evenOdd;
+
+    path.moveTo(0, borderRadius);
+    path.quadraticBezierTo(0, 0, borderRadius, 0);
+
+    if(hideTopCurve) {
+      path.lineTo(size.width - curveMargin, 0);
+    } else {
+      path.lineTo(curveMargin, 0);
+      path.quadraticBezierTo(size.width / 2, 20, size.width - curveMargin, 0);
+    }
+
+    path.lineTo(size.width - borderRadius, 0);   
+    path.quadraticBezierTo(size.width, 0, size.width, borderRadius);
+
+    path.lineTo(size.width, size.height - borderRadius);
+    path.quadraticBezierTo(size.width, size.height, size.width - borderRadius, size.height);
+
+    path.lineTo(size.width - curveMargin, size.height);
+    path.quadraticBezierTo(size.width / 2, size.height + 20, curveMargin, size.height);
+
+    path.lineTo(borderRadius, size.height);
+    path.quadraticBezierTo(0, size.height, 0, size.height - borderRadius);
+    
+    path.lineTo(0, borderRadius);   
+
+    canvas.drawPath(path, paint);
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

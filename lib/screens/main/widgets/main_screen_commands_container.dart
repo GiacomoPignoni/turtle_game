@@ -33,7 +33,7 @@ class _MainScreenCommandsContainerState extends State<MainScreenCommandsContaine
                           itemCount: state.commands.length,
                           itemBuilder: (context, index) => Padding(
                             key: ValueKey(state.commands[index].hashCode),
-                            padding: const EdgeInsets.only(bottom: 5),
+                            padding: const EdgeInsets.only(bottom: 0),
                             child: MainScreenCommandTile(
                               index: index,
                               command: state.commands[index],

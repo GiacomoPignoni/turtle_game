@@ -20,7 +20,10 @@ class NumpadPopupButton extends StatefulWidget {
 class _NumpadPopupButtonState extends State<NumpadPopupButton> {
   @override
   Widget build(BuildContext context) {
-    return widget.builder(context, _showPopup);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: widget.builder(context, _showPopup),
+    );
   }
 
   Future<double?> _showPopup(double initialValue, { bool showFullScreen = false }) async {
