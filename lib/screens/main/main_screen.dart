@@ -37,7 +37,12 @@ class MainScreen extends StatelessWidget {
                           Flexible(
                             fit: FlexFit.tight,
                             flex: isHorizontal ? 2 : 1,
-                            child: const MainScreenCanvas()
+                            child: Column(
+                              children: const [
+                                Expanded(child: MainScreenCanvas()),
+                                MainScreenBottomBar()
+                              ]
+                            )
                           ),
                           if (isHorizontal) 
                             const VerticalDivider()
@@ -53,8 +58,7 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                    const MainScreenBottomBar()
+                    ),                 
                   ],
                 );
               },

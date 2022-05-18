@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:turtle_game/extras/extensions.dart';
@@ -105,7 +106,16 @@ class _NumpadPopupState extends State<_NumpadPopup> {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_borderRadiusValue),
+          border: Border.all(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!),
           color: Colors.yellow,
+          boxShadow: const [
+            BoxShadow(
+              spreadRadius: 0,
+              color: Color(0xAA000000),
+              offset: Offset(2, 2),
+              blurRadius: 1
+            )
+          ]
         ),
         child: Column(
           children: [
@@ -117,7 +127,7 @@ class _NumpadPopupState extends State<_NumpadPopup> {
                     Expanded(
                       child: EditableText(
                         controller: _textEditingController,
-                        cursorColor: theme.textSelectionTheme.cursorColor ?? Colors.black,
+                        cursorColor: theme.textSelectionTheme.cursorColor!,
                         focusNode: _focusNode,
                         backgroundCursorColor: Colors.green,
                         maxLines: 1, 
@@ -317,7 +327,6 @@ class _NumpadPopopButton extends StatefulWidget {
   final bool showTopBorder;
   final bool showRightBorder;
   final bool showBottomBorder;
-  final Color borderColor;
 
   const _NumpadPopopButton({
     this.text,
@@ -326,7 +335,6 @@ class _NumpadPopopButton extends StatefulWidget {
     this.showTopBorder = false,
     this.showRightBorder = true,
     this.showBottomBorder = true,
-    this.borderColor = Colors.black
   }) : assert(text == null || child == null);
 
   @override
@@ -338,6 +346,7 @@ class _NumpadPopopButtonState extends State<_NumpadPopopButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final enabled = widget.onPressed != null;
 
     return Flexible(
@@ -356,9 +365,9 @@ class _NumpadPopopButtonState extends State<_NumpadPopopButton> {
               decoration: BoxDecoration(
                 color: _isDown && widget.text != null ? const Color(0x44101010) : const Color(0x00000000),
                 border: Border(
-                  top: widget.showTopBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
-                  right: widget.showRightBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none,
-                  bottom: widget.showBottomBorder ? BorderSide(color: widget.borderColor, width: 2) : BorderSide.none
+                  top: widget.showTopBorder ? BorderSide(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!) : BorderSide.none,
+                  right: widget.showRightBorder ? BorderSide(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!) : BorderSide.none,
+                  bottom: widget.showBottomBorder ? BorderSide(color: theme.dividerTheme.color!, width: theme.dividerTheme.thickness!) : BorderSide.none
                 ),
               ),
               child: _getChild()

@@ -49,50 +49,55 @@ class CommandTileBody extends StatelessWidget {
     return AnimatedBuilder(
       animation: command,
       builder: (context, child) {
-        return ConditionalWrapper(
-          condition: showTrash,
-          wrapperBuilder: (context, child) {
-            return Stack(
-              children: [
-                child,
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: CommandTileBodyDeleteIcon(
-                    onPressed: onTapDelete,
-                  )
-                )
-              ],
-            );
-          },
-          child: SizedBox(
-            width: 300,
-            height: 50,
-            child: CustomPaint(
-              painter: CommandTileBodyCustomPainter(
-                borderRadius: 10,
-                curveMarginPercentage: 0.25,
-                color: command.getColor(),
-                borderColor: theme.dividerTheme.color!.withOpacity(0.5),
-                hideTopCurve: hideTopCurve
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        command.toString(),
-                        style: theme.textTheme.bodyText1,
-                      )
-                    ),
-                    Expanded(
-                      child: Text(
-                        command.getValueToShow(),
-                        style: theme.textTheme.bodyText1,
-                      )
+        return SizedBox(
+          width: 220,
+          height: 65,
+          child: ConditionalWrapper(
+            condition: showTrash,
+            wrapperBuilder: (context, child) {
+              return Stack(
+                fit: StackFit.loose,
+                children: [
+                  child,
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CommandTileBodyDeleteIcon(
+                      onPressed: onTapDelete,
                     )
-                  ],
+                  )
+                ],
+              );
+            },
+            child: SizedBox(
+              width: 220,
+          height: 65,
+              child: CustomPaint(
+                painter: CommandTileBodyCustomPainter(
+                  borderRadius: 10,
+                  curveMarginPercentage: 0.25,
+                  color: command.getColor(),
+                  borderColor: theme.dividerTheme.color!.withOpacity(0.5),
+                  hideTopCurve: hideTopCurve
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          command.toString(),
+                          style: theme.textTheme.bodyText1,
+                        )
+                      ),
+                      Expanded(
+                        child: Text(
+                          command.getValueToShow(),
+                          style: theme.textTheme.bodyText1,
+                        )
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

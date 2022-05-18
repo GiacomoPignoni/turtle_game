@@ -28,11 +28,14 @@ final theme = ThemeData(
   primaryColorLight: snow,
   primaryColorDark: eeireBlack,
   shadowColor: gray,
+  textSelectionTheme: const TextSelectionThemeData(
+    cursorColor: eeireBlack
+  ),
   dividerTheme: const DividerThemeData(
     color: eeireBlack,
     thickness: 1,
     space: 1
-  ),
+  ),  
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: blueMunsell,
